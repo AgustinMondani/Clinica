@@ -1,0 +1,62 @@
+<div class="perfil-container">
+  <div class="perfil-card">
+    <div class="perfil-imagenes" *ngIf="usuario">
+      <img *ngIf="usuario.imagen" [src]="usuario.imagen" alt="Imagen de perfil" />
+      <img *ngIf="usuario.imagen2" [src]="usuario.imagen2" alt="Segunda imagen" />
+    </div>
+
+    <div class="perfil-datos" *ngIf="usuario">
+      <h2>{{ usuario.nombre }} {{ usuario.apellido }}</h2>
+      <p>DNI: {{ usuario.dni }}</p>
+      <p>Email: {{ usuario.email }}</p>
+      <p *ngIf="usuario.edad">Edad: {{ usuario.edad }}</p>
+      <p *ngIf="usuario.obra_social">Obra Social: {{ usuario.obra_social }}</p>
+      <p *ngIf="usuario.rol">Rol: {{ usuario.rol }}</p>
+    </div>
+
+    <div class="perfil-opciones" *ngIf="usuario?.rol">
+
+      <ng-container *ngIf="usuario.rol === 'paciente'">
+        <button (click)="irA('mis-turnos-paciente')">MIS TURNOS</button>
+        <button (click)="irA('solicitar-turno')">SOLICITAR TURNO</button>
+      </ng-container>
+
+      <ng-container *ngIf="usuario.rol === 'especialista'">
+        <button (click)="irA('mis-horarios')">MIS HORARIOS</button>
+        <button (click)="irA('mis-turnos-especialista')">MIS TURNOS</button>
+        <button (click)="irA('pacientes-especialista')">PACIENTES ESPECIALISTA</button>
+      </ng-container>
+
+      <ng-container *ngIf="usuario.rol === 'admin'">
+        <button (click)="irA('admin')">ADMINISTRAR USUARIOS</button>
+        <button (click)="irA('turnos-admin')">ADMINISTRAR TURNOS</button>
+        <button (click)="irA('solicitar-turno')">SOLICITAR TURNO</button>
+        <button (click)="irA('registro-admin')">REGISTRAR ADMIN</button>
+
+      </ng-container>
+    </div>
+  </div>
+
+  
+</div>
+<div *ngIf="usuario.rol === 'paciente'">
+    <h2>Mi Historia Clínica</h2>
+
+    <div *ngIf="historias.length === 0">No se encontraron registros.</div>
+
+    <div *ngFor="let h of historias" class="historia-card">
+      <p><strong>Fecha:</strong> {{ h.created_at | date:'shortDate' }}</p>
+      <p>Altura: {{ h.altura }} cm</p>
+      <p>Peso: {{ h.peso }} kg</p>
+      <p>Temperatura: {{ h.temperatura }} °C</p>
+      <p>Presión: {{ h.presion }}</p>
+
+      <div *ngIf="h.datos_dinamicos?.length">
+        <p><strong>Datos adicionales:</strong></p>
+        <ul>
+          <li *ngFor="let d of h.datos_dinamicos">{{ d.clave }}: {{ d.valor }}</li>
+        </ul>
+      </div>
+      <hr />
+    </div>
+  </div>

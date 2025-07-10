@@ -1,0 +1,142 @@
+.container {
+  margin-top: 200px;;
+  max-width: 700px; 
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+input.form-control {
+  max-width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  overflow-wrap: break-word; /* evita que texto largo se salga */
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #34495e;
+}
+
+.card-text {
+  font-size: 1rem;
+  color: #4a4a4a;
+  margin: 0.25rem 0;
+}
+
+.d-flex {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* Botones pequeños, colores y estilos consistentes */
+.btn {
+  font-size: 0.85rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-sm {
+  min-width: 90px;
+  text-align: center;
+}
+
+/* Colores botones */
+.btn-danger {
+  background-color: #e74c3c;
+  color: white;
+}
+.btn-danger:hover {
+  background-color: #c0392b;
+}
+
+.btn-info {
+  background-color: #3498db;
+  color: white;
+}
+.btn-info:hover {
+  background-color: #2980b9;
+}
+
+.btn-warning {
+  background-color: #f39c12;
+  color: white;
+}
+.btn-warning:hover {
+  background-color: #d68910;
+}
+
+.btn-success {
+  background-color: #27ae60;
+  color: white;
+}
+.btn-success:hover {
+  background-color: #1e8449;
+}
+
+/* Contenedor general con altura limitada y scroll si es necesario */
+.container {
+  max-height: 80vh; /* limitar la altura visible */
+  overflow-y: auto;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: #2980b9 #ecf0f1;
+}
+
+/* Scrollbar para WebKit */
+.container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.container::-webkit-scrollbar-track {
+  background: #ecf0f1;
+  border-radius: 4px;
+}
+
+.container::-webkit-scrollbar-thumb {
+  background-color: #2980b9;
+  border-radius: 4px;
+}
+
+/* Responsive para pantallas pequeñas */
+@media (max-width: 576px) {
+  .container {
+    max-width: 100%;
+    padding: 0 0.5rem;
+  }
+
+  .btn-sm {
+    min-width: 70px;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+  }
+}

@@ -1,0 +1,52 @@
+<div class="login-container">
+  <div class="login-card">
+    <h2 class="text-center mb-4">Iniciar Sesión</h2>
+
+    <form (ngSubmit)="login()" novalidate>
+      <div class="mb-3">
+        <label>Email</label>
+        <input type="email" class="form-control" [(ngModel)]="email" name="email" (blur)="validarCampos()" />
+        <div class="error" *ngIf="errorEmail">{{ errorEmail }}</div>
+      </div>
+
+      <div class="mb-3">
+        <label>Contraseña</label>
+        <input type="password" class="form-control" [(ngModel)]="password" name="password" (blur)="validarCampos()" />
+        <div class="error" *ngIf="errorPassword">{{ errorPassword }}</div>
+      </div>
+
+      <div class="error-general mb-3" *ngIf="errorGeneral">{{ errorGeneral }}</div>
+
+      <button type="submit" class="btn btn-success w-100" [disabled]="errorEmail || errorPassword">
+        Ingresar
+      </button>
+    </form>
+  </div>
+
+  <div class="fab-container" [class.open]="mostrarOpciones" aria-label="Botones de acceso rápido">
+    <button class="fab-main" (click)="toggleOpciones()" aria-haspopup="true" [attr.aria-expanded]="mostrarOpciones">
+      👤
+    </button>
+
+    <div class="fab-options" *ngIf="mostrarOpciones">
+      <button class="fab-option" (click)="preloadUser('paciente1')" title="Paciente 1">
+        <img src="https://oqnisprjqxdarqewgqqu.supabase.co/storage/v1/object/public/imagenes/13.png" alt="Paciente 1" />
+      </button>
+      <button class="fab-option" (click)="preloadUser('paciente2')" title="Paciente 2">
+        <img src="https://oqnisprjqxdarqewgqqu.supabase.co/storage/v1/object/public/imagenes/12.png" alt="Paciente 2" />
+      </button>
+      <button class="fab-option" (click)="preloadUser('paciente3')" title="Paciente 3">
+        <img src="https://oqnisprjqxdarqewgqqu.supabase.co/storage/v1/object/public/imagenes/11.png" alt="Paciente 3" />
+      </button>
+      <button class="fab-option" (click)="preloadUser('especialista1')" title="Especialista 1">
+        <img src="https://oqnisprjqxdarqewgqqu.supabase.co/storage/v1/object/public/imagenes/10.png" alt="Especialista Ricardo" />
+      </button>
+      <button class="fab-option" (click)="preloadUser('especialista2')" title="Especialista 2">
+        <img src="https://oqnisprjqxdarqewgqqu.supabase.co/storage/v1/object/public/imagenes/9.png" alt="Especialista 2" />
+      </button>
+      <button class="fab-option" (click)="preloadUser('admin')" title="Administrador">
+        <img src="https://oqnisprjqxdarqewgqqu.supabase.co/storage/v1/object/public/imagenes/8.png" alt="Administrador" />
+      </button>
+    </div>
+  </div>
+</div>

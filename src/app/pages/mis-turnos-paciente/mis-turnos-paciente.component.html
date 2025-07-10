@@ -1,0 +1,53 @@
+<div class="container mt-4">
+  <h2>Mis Turnos</h2>
+
+  <input
+    type="text"
+    class="form-control my-3"
+    placeholder="Filtrar por especialidad o especialista"
+    [(ngModel)]="filtro"
+  />
+
+  <div *ngFor="let turno of turnos | filtroTurnos:filtro" class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title">{{ turno.especialidad | titlecase }}</h5>
+      <p class="card-text">Especialista: {{ turno.nombre_especialista || turno.especialista_id }}</p>
+      <p class="card-text">Fecha: {{ turno.fecha | formatoFecha }} - Horario: {{ turno.horario }}</p>
+      <p ><strong>Estado:</strong> {{ turno.estado | estadoTurno }}</p>
+
+      <div class="d-flex gap-2 flex-wrap mt-3">
+        <button
+          *ngIf="turno.estado !== 'realizado'"
+          class="btn btn-danger btn-sm"
+          (click)="cancelarTurno(turno)"
+        >
+          Cancelar Turno
+        </button>
+
+        <button
+          *ngIf="turno.resena"
+          class="btn btn-info btn-sm"
+          (click)="verResena(turno)"
+        >
+          Ver Reseña
+        </button>
+
+        <button
+          *ngIf="turno.estado === 'realizado' && turno.resena"
+          class="btn btn-warning btn-sm"
+          (click)="completarEncuesta(turno)"
+        >
+          Completar Encuesta
+        </button>
+
+        <button
+          *ngIf="turno.estado === 'realizado'"
+          class="btn btn-success btn-sm"
+          (click)="calificarTurno(turno)"
+        >
+          Calificar Atención
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

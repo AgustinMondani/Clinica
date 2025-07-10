@@ -1,0 +1,19 @@
+<h2>Pacientes Atendidos</h2>
+
+<div *ngIf="historias.length === 0">No atendiste a ningún paciente aún.</div>
+
+<div *ngFor="let h of historias" class="historia-card">
+  <p><strong>Fecha:</strong> {{ h.created_at | date:'shortDate' }}</p>
+  <p><strong>Paciente ID:</strong> {{ h.paciente_id }}</p>
+  <p>Altura: {{ h.altura }} cm</p>
+  <p>Peso: {{ h.peso }} kg</p>
+  <p>Temperatura: {{ h.temperatura }} °C</p>
+  <p>Presión: {{ h.presion }}</p>
+
+  <div *ngIf="h.datos_dinamicos?.length">
+    <ul>
+      <li *ngFor="let d of h.datos_dinamicos">{{ d.clave }}: {{ d.valor }}</li>
+    </ul>
+  </div>
+  <hr />
+</div>

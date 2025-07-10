@@ -1,0 +1,114 @@
+<div class="container mt-4">
+  <h2>Mis Turnos (Especialista)</h2>
+
+  <input type="text" class="form-control my-3" placeholder="Filtrar por paciente o especialidad" [(ngModel)]="filtro"
+    (input)="aplicarFiltro()" />
+
+  <div *ngFor="let turno of filtrados" class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title">{{ turno.especialidad | titlecase }}</h5>
+      <p class="card-text">Paciente: {{ turno.nombre_paciente || turno.paciente_id }}</p>
+      <p class="card-text">Fecha: {{ turno.fecha }} - Horario: {{ turno.horario }}</p>
+      <p [appResaltar]="turno.estado"><strong>Estado:</strong> {{ turno.estado | titlecase }}</p>
+
+      <div class="d-flex gap-2 flex-wrap mt-3">
+        <button *ngIf="turno.estado === 'pendiente'" class="btn-success" (click)="aceptarTurno(turno)">Aceptar</button>
+        <button *ngIf="turno.estado === 'pendiente'" class="btn-danger" (click)="rechazarTurno(turno)">Rechazar</button>
+        <button *ngIf="!['realizado', 'rechazado'].includes(turno.estado)" class="btn-warning"
+          (click)="cancelarTurno(turno)">Cancelar</button>
+        <button *ngIf="turno.estado === 'aceptado'" class="btn-primary"
+          (click)="abrirModalFinalizarTurno(turno)">Finalizar Turno</button>
+        <button *ngIf="turno.resena" class="btn-info" (click)="verResena(turno)">Ver Reseña</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Historia Clínica -->
+<div class="modal-backdrop" *ngIf="modalVisible" (click)="cerrarModal()"></div>
+<div class="modal" *ngIf="modalVisible" (click)="$event.stopPropagation()">
+  <div class="modal-header">
+    <h3>Finalizar Turno - Historia Clínica</h3>
+    <button class="btn-close" (click)="cerrarModal()">×</button>
+  </div>
+  <div class="modal-body">
+    <form (submit)="guardarHistoriaClinica(); $event.preventDefault()">
+      <label>Altura (cm)</label>
+      <input type="text" [(ngModel)]="altura" name="altura" required />
+
+      <label>Peso (kg)</label>
+      <input type="text" [(ngModel)]="peso" name="peso" required />
+
+      <label>Temperatura (°C)</label>
+      <input type="text" [(ngModel)]="temperatura" name="temperatura" required />
+
+      <label>Presión (mmHg)</label>
+      <input type="text" [(ngModel)]="presion" name="presion" required />
+
+      <hr />
+      <h4>Datos Dinámicos (máximo 3)</h4>
+
+      <div *ngFor="let dato of datosDinamicos; let i = index" class="dinamico-row">
+        <input type="text" placeholder="Clave" [(ngModel)]="dato.clave" name="clave{{i}}" />
+        <input type="text" placeholder="Valor" [(ngModel)]="dato.valor" name="valor{{i}}" />
+        <button type="button" (click)="eliminarDatoDinamico(i)" *ngIf="datosDinamicos.length > 1">Eliminar</button>
+      </div>
+
+      <button type="button" (click)="agregarDatoDinamico()" [disabled]="datosDinamicos.length >= 3">
+        + Agregar dato dinámico
+      </button>
+
+      <div class="modal-footer">
+        <button type="submit" class="btn-confirmar">Guardar Historia Clínica</button>
+        <button type="button" class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Motivo Rechazo/Cancelación -->
+<div class="modal-backdrop" *ngIf="modalMotivoVisible" (click)="modalMotivoVisible = false"></div>
+<div class="modal" *ngIf="modalMotivoVisible" (click)="$event.stopPropagation()">
+  <div class="modal-header">
+    <h3 *ngIf="accionMotivo === 'rechazar'">Motivo Rechazo</h3>
+    <h3 *ngIf="accionMotivo === 'cancelar'">Motivo Cancelación</h3>
+    <button class="btn-close" (click)="modalMotivoVisible = false">×</button>
+  </div>
+  <div class="modal-body">
+    <textarea [(ngModel)]="motivo" rows="4" placeholder="Ingrese el motivo aquí..."></textarea>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-confirmar" (click)="enviarMotivo()">Enviar</button>
+    <button class="btn-cancelar" (click)="modalMotivoVisible = false">Cancelar</button>
+  </div>
+</div>
+
+<!-- Modal Mensaje General -->
+<div class="modal-backdrop" *ngIf="modalMensajeVisible" (click)="cerrarModalMensaje()"></div>
+<div class="modal" *ngIf="modalMensajeVisible" (click)="$event.stopPropagation()">
+  <div class="modal-header">
+    <h3>Información</h3>
+    <button class="btn-close" (click)="cerrarModalMensaje()">×</button>
+  </div>
+  <div class="modal-body">
+    <p>{{ mensajeModal }}</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-confirmar" (click)="cerrarModalMensaje()">Cerrar</button>
+  </div>
+</div>
+
+<!-- Modal Reseña -->
+<div class="modal-backdrop" *ngIf="modalResenaVisible" (click)="cerrarModalResena()"></div>
+<div class="modal" *ngIf="modalResenaVisible" (click)="$event.stopPropagation()">
+  <div class="modal-header">
+    <h3>Reseña del Turno</h3>
+    <button class="btn-close" (click)="cerrarModalResena()">×</button>
+  </div>
+  <div class="modal-body">
+    <p>{{ resenaMostrar }}</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-confirmar" (click)="cerrarModalResena()">Cerrar</button>
+  </div>
+</div>

@@ -1,1 +1,13 @@
-/* You can add global styles to this file, and also import other style files */
+body, html {
+  height: 100%;
+  margin: 0px 50px;
+  background-image: url('https://oqnisprjqxdarqewgqqu.supabase.co/storage/v1/object/public/imagenes//fondo.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

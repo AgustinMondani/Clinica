@@ -1,0 +1,88 @@
+<div class="container mt-5">
+
+  <h2 class="mb-4">Panel de Especialistas</h2>
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>Aprobado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let e of especialistas">
+        <td>{{ e.nombre }} {{ e.apellido }}</td>
+        <td>{{ e.email }}</td>
+        <td>{{ e.aprobado ? 'Sí' : 'No' }}</td>
+        <td>
+          <button class="btn btn-success btn-sm me-1" (click)="aprobar(e.id)" [disabled]="e.aprobado">APROBAR</button>
+          <button class="btn btn-danger btn-sm" (click)="rechazar(e.id)" [disabled]="!e.aprobado">SUSPENDER</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="mb-4 mt-5">Pacientes Registrados</h2>
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let p of pacientes">
+        <td>{{ p.nombre }} {{ p.apellido }}</td>
+        <td>{{ p.email }}</td>
+        <td>
+          <button class="btn btn-info btn-sm" (click)="verHistoria(p)">Ver Historia</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="acciones-admin">
+  <button (click)="exportarUsuariosExcel()">📥 Descargar Excel</button>
+</div>
+</div>
+
+<div class="modal fade show d-block" *ngIf="mostrarModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Historia Clínica de {{ pacienteSeleccionado?.nombre }} {{ pacienteSeleccionado?.apellido }}</h5>
+        <button type="button" class="btn-close" (click)="cerrarModal()"></button>
+      </div>
+
+      <div class="modal-body" *ngIf="historiaSeleccionada.length > 0; else sinHistoria">
+        <div *ngFor="let h of historiaSeleccionada" class="mb-4 border-bottom pb-3">
+          <p><strong>Fecha:</strong> {{ h.created_at | date:'short' }}</p>
+          <p><strong>Altura:</strong> {{ h.altura }} cm</p>
+          <p><strong>Peso:</strong> {{ h.peso }} kg</p>
+          <p><strong>Temperatura:</strong> {{ h.temperatura }} °C</p>
+          <p><strong>Presión:</strong> {{ h.presion }}</p>
+
+          <div *ngIf="h.datos_dinamicos?.length">
+            <p><strong>Otros datos:</strong></p>
+            <ul>
+              <li *ngFor="let d of h.datos_dinamicos">{{ d.clave }}: {{ d.valor }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #sinHistoria>
+        <div class="alert alert-warning">Este paciente no tiene historias clínicas registradas.</div>
+      </ng-template>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cerrarModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop fade show" *ngIf="mostrarModal"></div>

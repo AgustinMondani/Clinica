@@ -1,0 +1,80 @@
+<div class="solicitar-turno-container">
+
+  <h2>Solicitar Turno</h2>
+
+  <!-- Mensaje de notificación -->
+  <div *ngIf="mensaje" class="mensaje" [ngClass]="{
+    'error': tipoMensaje === 'error',
+    'success': tipoMensaje === 'success',
+    'info': tipoMensaje === 'info'
+  }">
+    {{ mensaje }}
+  </div>
+
+  <div class="form-group">
+    <label for="especialidadBuscada">Especialidad</label>
+    <input
+      type="text"
+      id="especialidadBuscada"
+      [(ngModel)]="especialidadBuscada"
+      (keyup.enter)="buscarEspecialistas()"
+      placeholder="Ingrese especialidad"
+    />
+    <button (click)="buscarEspecialistas()">Buscar</button>
+  </div>
+
+  <div *ngIf="especialistas.length > 0" class="especialistas-lista">
+    <h3>Especialistas disponibles</h3>
+    <ul>
+      <li *ngFor="let esp of especialistas" (click)="seleccionarEspecialista(esp)" [class.seleccionado]="esp === especialistaSeleccionado">
+        {{ esp.nombre }} {{ esp.apellido }} - ({{ esp.especialidades.join(', ') }})
+      </li>
+    </ul>
+  </div>
+
+  <div *ngIf="especialistaSeleccionado && especialistaSeleccionado.especialidades.length > 1">
+    <label>Seleccione especialidad:</label>
+    <select [(ngModel)]="especialidadSeleccionada" (change)="onEspecialidadChange()">
+      <option *ngFor="let esp of especialistaSeleccionado.especialidades" [value]="esp">{{ esp }}</option>
+    </select>
+  </div>
+
+  <div *appMostrarAdmin="true" class="form-group">
+    <label>Paciente:</label>
+    <select [(ngModel)]="pacienteSeleccionado">
+      <option [ngValue]="null">Seleccione un paciente</option>
+      <option *ngFor="let paciente of pacientes" [value]="paciente.id">
+        {{ paciente.nombre }} {{ paciente.apellido }}
+      </option>
+    </select>
+  </div>
+
+  <div *ngIf="fechasDisponibles.length > 0" class="fechas">
+    <h3>Seleccione una fecha:</h3>
+    <ul>
+      <li *ngFor="let fecha of fechasDisponibles" (click)="seleccionarFecha(fecha.iso)" [class.seleccionado]="fecha.iso === fechaSeleccionada">
+        {{ fecha.texto }}
+      </li>
+    </ul>
+  </div>
+
+  <div *ngIf="horariosDisponibles.length > 0" class="horarios">
+    <h3>Seleccione un horario:</h3>
+    <div class="horarios-grid">
+      <button
+        *ngFor="let h of horariosDisponibles"
+        [disabled]="h.ocupado"
+        [class.ocupado]="h.ocupado"
+        [class.seleccionado]="h.hora === horarioSeleccionado"
+        (click)="horarioSeleccionado = h.hora"
+      >
+        {{ h.hora }}
+      </button>
+    </div>
+  </div>
+
+  <button class="btn-confirmar" (click)="confirmarTurno()" [disabled]="!horarioSeleccionado || !fechaSeleccionada">
+    Confirmar Turno
+  </button>
+
+</div>

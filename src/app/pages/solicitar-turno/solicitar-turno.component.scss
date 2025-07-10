@@ -1,0 +1,237 @@
+
+
+.solicitar-turno-container {
+  max-width: 700px;
+  margin: 100px auto;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 30px 40px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  user-select: none;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-weight: 700;
+  color: #2c3e50;
+  letter-spacing: 1.2px;
+  font-size: 2.4rem;
+}
+
+.form-group {
+
+  margin-top: 50px;
+  margin-bottom: 25px;
+
+  label {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 8px;
+    display: block;
+    color: #34495e;
+  }
+
+  input[type="text"],
+  select {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1.8px solid #bdc3c7;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: #2980b9;
+      outline: none;
+      box-shadow: 0 0 6px rgba(41, 128, 185, 0.5);
+    }
+  }
+
+  button {
+    margin-top: 10px;
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    padding: 11px 25px;
+    font-size: 1.1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+
+    &:hover:not(:disabled) {
+      background-color: #1f5f8b;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+}
+
+.especialistas-lista {
+  margin-bottom: 25px;
+
+  h3 {
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #2c3e50;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+
+    li {
+      padding: 12px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      border: 1.5px solid transparent;
+
+      &:hover {
+        background-color: #ecf0f1;
+      }
+
+      &.seleccionado {
+        background-color: #2980b9;
+        color: white;
+        font-weight: 700;
+        border-color: #1c4f7a;
+      }
+    }
+  }
+}
+
+.fechas {
+  margin-bottom: 25px;
+
+  h3 {
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #2c3e50;
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 0;
+    list-style: none;
+
+    li {
+      padding: 10px 15px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.25s ease;
+      user-select: none;
+
+      &:hover {
+        background-color: #d6eaf8;
+      }
+
+      &.seleccionado {
+        background-color: #2980b9;
+        color: white;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+.horarios {
+  margin-bottom: 30px;
+
+  h3 {
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #2c3e50;
+  }
+
+  .horarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 10px;
+
+    button {
+      padding: 10px 0;
+      border-radius: 8px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      background-color: #27ae60;
+      color: white;
+      transition: background-color 0.3s ease;
+
+      &.ocupado {
+        background-color: #e74c3c;
+        cursor: not-allowed;
+        color: #f9f9f9;
+      }
+
+      &.seleccionado {
+        background-color: #145a32;
+        box-shadow: 0 0 8px #145a32;
+      }
+
+      &:hover:not(.ocupado) {
+        background-color: #2ecc71;
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+.btn-confirmar {
+  width: 100%;
+  padding: 14px;
+  font-weight: 700;
+  font-size: 1.3rem;
+  background-color: #2980b9;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover:not(:disabled) {
+    background-color: #1f5f8b;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.mensaje {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  font-weight: 600;
+  text-align: center;
+  &.error {
+    background-color: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+  }
+  &.success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border: 1px solid #badbcc;
+  }
+  &.info {
+    background-color: #cff4fc;
+    color: #055160;
+    border: 1px solid #b6effb;
+  }
+}

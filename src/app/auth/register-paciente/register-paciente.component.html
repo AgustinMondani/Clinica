@@ -1,0 +1,85 @@
+<div class="login-container">
+  <div class="login-card">
+    <h2>Registro de Paciente</h2>
+
+    <form (ngSubmit)="registrar()" #form="ngForm" novalidate>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label>Nombre</label>
+          <input class="form-control" [(ngModel)]="formData.nombre" name="nombre" #nombreCtrl="ngModel" required />
+          <div class="error" *ngIf="nombreCtrl.invalid && nombreCtrl.touched">El nombre es obligatorio.</div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label>Apellido</label>
+          <input class="form-control" [(ngModel)]="formData.apellido" name="apellido" #apellidoCtrl="ngModel"
+            required />
+          <div class="error" *ngIf="apellidoCtrl.invalid && apellidoCtrl.touched">El apellido es obligatorio.</div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label>Edad</label>
+          <input type="number" class="form-control" [(ngModel)]="formData.edad" name="edad" #edadCtrl="ngModel" required
+            min="0" />
+          <div class="error" *ngIf="edadCtrl.invalid && edadCtrl.touched">La edad es obligatoria.</div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label>DNI</label>
+          <input type="text" class="form-control" [(ngModel)]="formData.dni" name="dni" #dniCtrl="ngModel" required
+            pattern="^[0-9]{7,8}$" />
+          <div class="error" *ngIf="dniCtrl.invalid && dniCtrl.touched">
+            <ng-container *ngIf="dniCtrl.errors?.['required']">El DNI es obligatorio.</ng-container>
+            <ng-container *ngIf="dniCtrl.errors?.['pattern']">Debe tener 7 u 8 dígitos numéricos.</ng-container>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label>Obra Social</label>
+          <input class="form-control" [(ngModel)]="formData.obraSocial" name="obraSocial" #obraCtrl="ngModel"
+            required />
+          <div class="error" *ngIf="obraCtrl.invalid && obraCtrl.touched">La obra social es obligatoria.</div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label>Email</label>
+          <input type="email" class="form-control" [(ngModel)]="formData.email" name="email" #emailCtrl="ngModel"
+            required email />
+          <div class="error" *ngIf="emailCtrl.invalid && emailCtrl.touched">El email debe ser válido.</div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label>Contraseña</label>
+          <input type="password" class="form-control" [(ngModel)]="formData.password" name="password"
+            #passCtrl="ngModel" required minlength="6" />
+          <div class="error" *ngIf="passCtrl.invalid && passCtrl.touched">
+            <ng-container *ngIf="passCtrl.errors?.['required']">La contraseña es obligatoria.</ng-container>
+            <ng-container *ngIf="passCtrl.errors?.['minlength']">Debe tener al menos 6 caracteres.</ng-container>
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label>Imagen 1</label>
+          <input type="file" class="form-control" (change)="onFileSelected($event, 1)" accept="image/*" />
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label>Imagen 2</label>
+          <input type="file" class="form-control" (change)="onFileSelected($event, 2)" accept="image/*" />
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <input class="form-control" type="number" name="captcha" [(ngModel)]="captchaRespuesta" #captchaCtrl="ngModel"
+          required appCaptcha />
+        <div class="error" *ngIf="captchaCtrl.invalid && captchaCtrl.touched">
+          Por favor, resolvé el captcha correctamente.
+        </div>
+      </div>
+
+      <div class="error-general" *ngIf="errorGeneral">{{ errorGeneral }}</div>
+
+      <button class="btn btn-success w-100" type="submit" [disabled]="form.invalid">Registrarse</button>
+    </form>
+  </div>
+</div>

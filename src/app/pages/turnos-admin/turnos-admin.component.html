@@ -1,0 +1,64 @@
+<div class="container mt-4">
+  <h2>Panel de Turnos - Administrador</h2>
+
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <label for="filtroEspecialidad">Filtrar por Especialidad</label>
+      <input
+        id="filtroEspecialidad"
+        type="text"
+        class="form-control"
+        [(ngModel)]="filtro.especialidad"
+        (input)="onFiltroChange()"
+        placeholder="Escriba especialidad"
+      />
+    </div>
+
+    <div class="col-md-6">
+      <label for="filtroEspecialista">Filtrar por Especialista</label>
+      <input
+        id="filtroEspecialista"
+        type="text"
+        class="form-control"
+        [(ngModel)]="filtro.especialistaTexto"
+        (input)="onFiltroChange()"
+        placeholder="Escriba nombre o apellido del especialista"
+      />
+    </div>
+  </div>
+
+  <table class="table table-bordered table-hover">
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Paciente</th>
+        <th>Especialidad</th>
+        <th>Especialista</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let t of turnos">
+        <td>{{ t.fecha | date: 'short' }}</td>
+        <td>{{ t.pacientes?.nombre }} {{ t.pacientes?.apellido }}</td>
+        <td>{{ t.especialidad | titlecase }}</td>
+        <td>{{ t.especialistas?.nombre }} {{ t.especialistas?.apellido }}</td>
+        <td>{{ t.estado | titlecase }}</td>
+        <td>
+          <button
+            *ngIf="puedeCancelar(t.estado)"
+            class="btn btn-danger btn-sm"
+            (click)="cancelarTurno(t.id)"
+          >
+            Cancelar
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="turnos.length === 0">
+        <td colspan="6" class="text-center">No se encontraron turnos.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
