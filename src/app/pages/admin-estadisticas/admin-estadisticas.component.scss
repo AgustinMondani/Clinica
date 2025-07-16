@@ -1,0 +1,110 @@
+:host {
+  margin-top: 70px;
+  display: block;
+  justify-content: center;
+  min-height: 90vh;
+  padding: 1.5rem 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+section {
+  margin: auto;
+  width: 50vw;
+  background: white;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.8rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 6px rgb(0 0 0 / 0.1);
+}
+
+section h3 {
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #34495e;
+}
+
+canvas {
+  display: block;
+  max-width: 100%;
+  height: 280px !important; /* altura fija para que no sean muy grandes */
+  margin: 0 auto;
+}
+
+table {
+ justify-content: center;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+thead tr {
+  background-color: #2980b9;
+  color: white;
+}
+
+thead tr th {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 2px solid #1b4f72;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #ecf0f1;
+}
+
+tbody tr:hover {
+  background-color: #d0d7de;
+}
+
+tbody tr td {
+  padding: 8px 10px;
+}
+
+.acciones {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 2rem 0;
+}
+
+button {
+  background-color: #2980b9;
+  color: white;
+  border: none;
+  padding: 0.65rem 1.3rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+button:hover {
+  background-color: #1b4f72;
+}
+
+/* Responsivo para pantallas pequeñas */
+@media (max-width: 720px) {
+  :host {
+    padding: 1rem;
+  }
+
+  canvas {
+    height: 220px !important;
+  }
+
+  .acciones {
+    flex-direction: column;
+  }
+
+  button {
+    width: 100%;
+  }
+}

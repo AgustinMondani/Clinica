@@ -167,11 +167,19 @@ export class SolicitarTurnoComponent implements OnInit {
   async seleccionarFecha(fecha: string) {
     this.fechaSeleccionada = fecha;
     this.horariosDisponibles = [];
+//////////// Rompia porque me estaba tomando otra fecha horaria y me devolvia un dia antes
+    const partes = fecha.split('-');
+    const fechaLocal = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2]));
+    const diaTexto = this.getDiaTexto(fechaLocal.getDay()).toLowerCase();
+//////////
 
-    const diaTexto = this.getDiaTexto(new Date(fecha).getDay()).toLowerCase();
+    console.log(diaTexto);
     const horariosDelDia = this.horariosPorDia[diaTexto];
 
     if (!horariosDelDia || horariosDelDia.length === 0) {
+      console.log("aca esta el error lpm ");
+      console.log(horariosDelDia);
+      console.log(this.horariosDisponibles);
       this.mostrarMensaje('No hay horarios disponibles para este día.', 'error');
       return;
     }

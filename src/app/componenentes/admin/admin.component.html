@@ -1,4 +1,4 @@
-<div class="container mt-5">
+<div class="container">
 
   <h2 class="mb-4">Panel de Especialistas</h2>
   <table class="table table-bordered table-striped">
@@ -16,8 +16,8 @@
         <td>{{ e.email }}</td>
         <td>{{ e.aprobado ? 'Sí' : 'No' }}</td>
         <td>
-          <button class="btn btn-success btn-sm me-1" (click)="aprobar(e.id)" [disabled]="e.aprobado">APROBAR</button>
-          <button class="btn btn-danger btn-sm" (click)="rechazar(e.id)" [disabled]="!e.aprobado">SUSPENDER</button>
+          <button class="btn btn-success btn-sm me-1" (click)="aprobar(e.id)" [disabled]="e.aprobado">HABILITAR</button>
+          <button class="btn btn-danger btn-sm" (click)="rechazar(e.id)" [disabled]="!e.aprobado">DESHABILITAR</button>
         </td>
       </tr>
     </tbody>
@@ -44,7 +44,7 @@
   </table>
 
   <div class="acciones-admin">
-  <button (click)="exportarUsuariosExcel()">📥 Descargar Excel</button>
+  <button (click)="exportarUsuariosExcel()">Descargar Excel</button>
 </div>
 </div>
 

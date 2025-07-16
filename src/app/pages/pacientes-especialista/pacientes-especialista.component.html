@@ -4,7 +4,7 @@
 
 <div *ngFor="let h of historias" class="historia-card">
   <p><strong>Fecha:</strong> {{ h.created_at | date:'shortDate' }}</p>
-  <p><strong>Paciente ID:</strong> {{ h.paciente_id }}</p>
+  <p><strong>Paciente:</strong> {{ pacientesMap[h.paciente_id].nombre}} {{ pacientesMap[h.paciente_id].apellido}}</p>
   <p>Altura: {{ h.altura }} cm</p>
   <p>Peso: {{ h.peso }} kg</p>
   <p>Temperatura: {{ h.temperatura }} °C</p>

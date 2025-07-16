@@ -43,52 +43,63 @@ export class LoginComponent {
   }
 
   async login() {
-    if (!this.validarCampos()) return;
+  if (!this.validarCampos()) return;
 
-    const { data, error } = await this.supabase.client.auth.signInWithPassword({
-      email: this.email,
-      password: this.password,
-    });
+  const { data, error } = await this.supabase.client.auth.signInWithPassword({
+    email: this.email,
+    password: this.password,
+  });
 
-    if (error) {
-      this.errorGeneral = 'Error al iniciar sesión, credenciales invalidas';
-      return;
-    }
-
-    const userId = data.user.id;
-
-    const admin = await this.supabase.client.from('administradores').select('*').eq('id', userId).maybeSingle();
-    if (admin.data) {
-      this.router.navigate(['/mi-perfil']);
-      return;
-    }
-
-    const especialista = await this.supabase.client.from('especialistas').select('*').eq('id', userId).maybeSingle();
-    if (especialista.data) {
-      if (!data.user.email_confirmed_at) {
-        this.errorGeneral = 'Debes confirmar tu email.';
-        return;
-      }
-      if (!especialista.data.aprobado) {
-        this.errorGeneral = 'Tu cuenta aún no fue aprobada por el administrador.';
-        return;
-      }
-      this.router.navigate(['/mi-perfil']);
-      return;
-    }
-
-    const paciente = await this.supabase.client.from('pacientes').select('*').eq('id', userId).maybeSingle();
-    if (paciente.data) {
-      if (!data.user.email_confirmed_at) {
-        this.errorGeneral = 'Debes confirmar tu email.';
-        return;
-      }
-      this.router.navigate(['/mi-perfil']);
-      return;
-    }
-
-    this.errorGeneral = 'No se encontró un rol válido asociado a tu cuenta.';
+  if (error) {
+    this.errorGeneral = 'Error al iniciar sesión, credenciales invalidas';
+    return;
   }
+
+  // Registramos el log de ingreso aquí
+  try {
+    await this.supabase.client
+      .from('logs_ingresos')
+      .insert([{ usuario: this.email }]);
+  } catch (e) {
+    console.error('Error registrando log de ingreso:', e);
+    // No interrumpe el flujo si falla el log
+  }
+
+  const userId = data.user.id;
+
+  const admin = await this.supabase.client.from('administradores').select('*').eq('id', userId).maybeSingle();
+  if (admin.data) {
+    this.router.navigate(['/mi-perfil']);
+    return;
+  }
+
+  const especialista = await this.supabase.client.from('especialistas').select('*').eq('id', userId).maybeSingle();
+  if (especialista.data) {
+    if (!data.user.email_confirmed_at) {
+      this.errorGeneral = 'Debes confirmar tu email.';
+      return;
+    }
+    if (!especialista.data.aprobado) {
+      this.errorGeneral = 'Tu cuenta aún no fue aprobada por el administrador.';
+      return;
+    }
+    this.router.navigate(['/mi-perfil']);
+    return;
+  }
+
+  const paciente = await this.supabase.client.from('pacientes').select('*').eq('id', userId).maybeSingle();
+  if (paciente.data) {
+    if (!data.user.email_confirmed_at) {
+      this.errorGeneral = 'Debes confirmar tu email.';
+      return;
+    }
+    this.router.navigate(['/mi-perfil']);
+    return;
+  }
+
+  this.errorGeneral = 'No se encontró un rol válido asociado a tu cuenta.';
+}
+
 
   preloadUser(userType: string) {
     switch(userType) {

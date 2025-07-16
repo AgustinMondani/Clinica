@@ -31,32 +31,37 @@
         <button (click)="irA('admin')">ADMINISTRAR USUARIOS</button>
         <button (click)="irA('turnos-admin')">ADMINISTRAR TURNOS</button>
         <button (click)="irA('solicitar-turno')">SOLICITAR TURNO</button>
+        <button (click)="irA('estadisticas')">ESTADISTICAS</button>
         <button (click)="irA('registro-admin')">REGISTRAR ADMIN</button>
 
       </ng-container>
     </div>
   </div>
 
-  
+
 </div>
-<div *ngIf="usuario.rol === 'paciente'">
-    <h2>Mi Historia Clínica</h2>
+<div class="historia-clinica-container" *ngIf="usuario.rol === 'paciente'">
+  <h2>Mi Historia Clínica</h2>
 
-    <div *ngIf="historias.length === 0">No se encontraron registros.</div>
+  <button class="btn btn-outline-primary my-3" (click)="generarHistoriaClinicaPDF()">
+    Descargar Historia Clínica en PDF
+  </button>
 
-    <div *ngFor="let h of historias" class="historia-card">
-      <p><strong>Fecha:</strong> {{ h.created_at | date:'shortDate' }}</p>
-      <p>Altura: {{ h.altura }} cm</p>
-      <p>Peso: {{ h.peso }} kg</p>
-      <p>Temperatura: {{ h.temperatura }} °C</p>
-      <p>Presión: {{ h.presion }}</p>
+  <div *ngIf="historias.length === 0">No se encontraron registros</div>
 
-      <div *ngIf="h.datos_dinamicos?.length">
-        <p><strong>Datos adicionales:</strong></p>
-        <ul>
-          <li *ngFor="let d of h.datos_dinamicos">{{ d.clave }}: {{ d.valor }}</li>
-        </ul>
-      </div>
-      <hr />
+  <div *ngFor="let h of historias" class="historia-card">
+    <p><strong>Fecha:</strong> {{ h.created_at | date:'shortDate' }}</p>
+    <p>Altura: {{ h.altura }} cm</p>
+    <p>Peso: {{ h.peso }} kg</p>
+    <p>Temperatura: {{ h.temperatura }} °C</p>
+    <p>Presión: {{ h.presion }}</p>
+
+    <div *ngIf="h.datos_dinamicos?.length">
+      <p><strong>Datos adicionales:</strong></p>
+      <ul>
+        <li *ngFor="let d of h.datos_dinamicos">{{ d.clave }}: {{ d.valor }}</li>
+      </ul>
     </div>
+    <hr />
   </div>
+</div>

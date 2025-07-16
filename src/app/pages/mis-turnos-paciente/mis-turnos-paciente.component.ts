@@ -16,17 +16,44 @@ import { FiltroTurnosPipe } from '../../pipes/filtro-turnos.pipe';
 })
 export class MisTurnosPacienteComponent implements OnInit {
   turnos: any[] = [];
+  turnosFiltrados: any[] = [];
   filtro: string = '';
+  filtroFecha: string = '';
+  filtroEstado: string = '';
+  fechasUnicas: string[] = [];
+
+  especialistasMap: Record<string, { nombre: string; apellido: string }> = {};
 
   constructor(
     private turnoService: TurnoService,
-    private supabase: SupabaseService,
+    private supabase: SupabaseService
   ) {}
 
   async ngOnInit() {
     const userId = await this.supabase.getUserId();
     const data = await this.turnoService.obtenerTurnosPorUsuario(userId!, 'paciente');
     this.turnos = data || [];
+    this.turnosFiltrados = [...this.turnos];
+
+    this.especialistasMap = await this.supabase.cargarEspecialistas();
+
+    // Generar lista única de fechas
+    this.fechasUnicas = [...new Set(this.turnos.map(t => t.fecha))];
+  }
+
+  actualizarTurnosFiltrados() {
+    this.turnosFiltrados = this.turnos.filter(t => {
+      const coincideFecha = this.filtroFecha ? t.fecha === this.filtroFecha : true;
+      const coincideEstado = this.filtroEstado ? t.estado === this.filtroEstado : true;
+      return coincideFecha && coincideEstado;
+    });
+  }
+
+  limpiarFiltros() {
+    this.filtro = '';
+    this.filtroFecha = '';
+    this.filtroEstado = '';
+    this.turnosFiltrados = [...this.turnos];
   }
 
   async cancelarTurno(turno: any) {

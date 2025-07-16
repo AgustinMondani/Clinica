@@ -2,8 +2,65 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 100vh;
   padding: 2rem;
+}
+
+.contenido {
+  text-align: center;
+}
+
+.titulo {
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  color: #0f172a;
+}
+
+.botones {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  width: 500px;
+}
+
+.btn-generico {
+  width: 500px;
+  padding: 1rem 2rem;
+  font-size: 1.3rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.btn-generico:hover {
+  background-color: #2563eb;
+}
+
+/* Botones con imagen */
+.btn-imagen {
+  display: block;
+  width: 300px;
+  height: 100px;
   background-size: cover;
   background-repeat: no-repeat;
-  min-height: 100vh;
+
+  transition: transform 0.3s ease;
+}
+
+.btn-imagen:hover {
+  transform: scale(1.05);
+}
+
+.paciente {
+  width: 500px;
+  background-image: url('https://oqnisprjqxdarqewgqqu.supabase.co/storage/v1/object/public/imagenes//1.png');
+}
+
+.especialista {
+  width: 500px;
+  background-image: url('https://oqnisprjqxdarqewgqqu.supabase.co/storage/v1/object/public/imagenes//2.png');
 }

@@ -52,4 +52,36 @@ export class SupabaseService {
     return null;
   }
 
+  async cargarEspecialistas() {
+    const especialistasMap: { [id: string]: any } = {};
+    
+    const { data, error } = await this.supabase
+      .from('especialistas')
+      .select('id, nombre, apellido');
+
+    if (!error && data) {
+      for (let esp of data) {
+        especialistasMap[esp.id] = esp;
+      }
+    }
+
+    return especialistasMap;
+  }
+
+  async cargarPacientes() {
+    const pacientesMap: { [id: string]: any } = {};
+    
+    const { data, error } = await this.supabase
+      .from('pacientes')
+      .select('id, nombre, apellido');
+
+    if (!error && data) {
+      for (let esp of data) {
+        pacientesMap[esp.id] = esp;
+      }
+    }
+
+    return pacientesMap;
+  }
+
 }

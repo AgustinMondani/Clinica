@@ -1,0 +1,33 @@
+.navbar {
+  padding: 0.75rem;
+  display: flex;
+  gap: 2rem;
+  justify-content: flex-end;
+  border-bottom: 1px solid #ccc;
+  background-color: rgba(255, 255, 255, 0.38);
+
+
+  button {
+    padding: 0.5rem 1rem;
+    background-color: #073261;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+
+    &:hover {
+      background-color: #1565c0;
+    }
+  }
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}

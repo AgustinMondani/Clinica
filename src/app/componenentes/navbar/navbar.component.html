@@ -1,0 +1,5 @@
+<nav *ngIf="showNav()" class="navbar">
+  <button *ngIf="showBack()" (click)="goBack()">Volver</button>
+  <button *ngIf="showHome()" (click)="goHome()">Inicio</button>
+  <button *ngIf="showLogout()" (click)="logout()">Cerrar sesión</button>
+</nav>

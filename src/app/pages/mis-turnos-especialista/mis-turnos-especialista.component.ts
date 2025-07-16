@@ -17,8 +17,12 @@ export class MisTurnosEspecialistaComponent implements OnInit {
   turnos: any[] = [];
   filtrados: any[] = [];
   filtro: string = '';
+  filtroFecha: string = '';
+  filtroEstado: string = '';
+  fechasUnicas: string[] = [];
 
-  // Modal Historia Clínica
+  pacientesMap: Record<string, { nombre: string; apellido: string }> = {};
+
   modalVisible: boolean = false;
   turnoSeleccionado: any = null;
 
@@ -28,37 +32,68 @@ export class MisTurnosEspecialistaComponent implements OnInit {
   presion: string = '';
   datosDinamicos: { clave: string; valor: string }[] = [{ clave: '', valor: '' }];
 
-  // Modal Motivo Rechazo/Cancelación
   modalMotivoVisible: boolean = false;
   motivo: string = '';
   accionMotivo: 'rechazar' | 'cancelar' | null = null;
   turnoConMotivo: any = null;
 
-  // Modal Mensaje general (exito/error/info)
   modalMensajeVisible: boolean = false;
   mensajeModal: string = '';
 
-  // Modal para ver reseña
   modalResenaVisible: boolean = false;
   resenaMostrar: string = '';
 
   constructor(
-    private supabase: SupabaseService, private turnoService: TurnoService, private historiaService: HistoriaClinicaService) {}
+    private supabase: SupabaseService,
+    private turnoService: TurnoService,
+    private historiaService: HistoriaClinicaService
+  ) {}
 
   async ngOnInit() {
     const userId = await this.supabase.getUserId();
     const data = await this.turnoService.obtenerTurnosPorUsuario(userId!, 'especialista');
     this.turnos = data || [];
+    this.pacientesMap = await this.supabase.cargarPacientes();
+
+    this.generarFechasUnicas();
     this.aplicarFiltro();
+  }
+
+  generarFechasUnicas() {
+    const fechas = this.turnos.map(t => t.fecha);
+    this.fechasUnicas = Array.from(new Set(fechas));
   }
 
   aplicarFiltro() {
     const f = this.filtro.toLowerCase();
-    this.filtrados = this.turnos.filter(t =>
-      (t.especialidad?.toLowerCase().includes(f) ||
-      t.nombre_paciente?.toLowerCase().includes(f) ||
-      t.paciente_id?.toLowerCase().includes(f))
-    );
+
+    this.filtrados = this.turnos.filter(t => {
+      const paciente = this.pacientesMap[t.paciente_id];
+      const nombrePaciente = paciente?.nombre?.toLowerCase() || '';
+      const apellidoPaciente = paciente?.apellido?.toLowerCase() || '';
+      const especialidad = t.especialidad?.toLowerCase() || '';
+      const nombreTurno = t.nombre_paciente?.toLowerCase() || '';
+      const id = t.paciente_id?.toLowerCase() || '';
+
+      const coincideTexto =
+        especialidad.includes(f) ||
+        nombreTurno.includes(f) ||
+        id.includes(f) ||
+        nombrePaciente.includes(f) ||
+        apellidoPaciente.includes(f);
+
+      const coincideFecha = this.filtroFecha ? t.fecha === this.filtroFecha : true;
+      const coincideEstado = this.filtroEstado ? t.estado === this.filtroEstado : true;
+
+      return coincideTexto && coincideFecha && coincideEstado;
+    });
+  }
+
+  limpiarFiltros() {
+    this.filtro = '';
+    this.filtroFecha = '';
+    this.filtroEstado = '';
+    this.aplicarFiltro();
   }
 
   async aceptarTurno(turno: any) {
@@ -181,6 +216,7 @@ export class MisTurnosEspecialistaComponent implements OnInit {
     const userId = await this.supabase.getUserId();
     const data = await this.turnoService.obtenerTurnosPorUsuario(userId!, 'especialista');
     this.turnos = data || [];
+    this.generarFechasUnicas();
     this.aplicarFiltro();
   }
 

@@ -9,6 +9,7 @@ import * as FileSaver from 'file-saver';
 @Component({
   selector: 'app-admin',
   templateUrl: './admin.component.html',
+  styleUrls: ['./admin.component.scss'],
   standalone: true,
   imports: [CommonModule]
 })

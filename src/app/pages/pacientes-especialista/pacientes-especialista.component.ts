@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class PacientesEspecialistaComponent implements OnInit {
   historias: any[] = [];
+  pacientesMap: Record<string, { nombre: string; apellido: string }> = {};
 
   constructor(
     private historiaService: HistoriaClinicaService,
@@ -20,5 +21,6 @@ export class PacientesEspecialistaComponent implements OnInit {
   async ngOnInit() {
     const especialistaId = await this.supabase.getUserId();
     this.historias = await this.historiaService.obtenerHistoriasPorEspecialista(especialistaId!);
+    this.pacientesMap = await this.supabase.cargarPacientes();
   }
 }
