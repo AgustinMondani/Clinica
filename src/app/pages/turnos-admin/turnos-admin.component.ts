@@ -3,6 +3,7 @@ import { SupabaseService } from '../../core/supabase.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, Subject } from 'rxjs';
+import { LoadingService } from '../../core/loading.service';
 
 @Component({
   selector: 'app-turnos-admin',
@@ -23,14 +24,16 @@ export class TurnosAdminComponent implements OnInit {
 
   private filtroSubject = new Subject<void>();
 
-  constructor(private supabase: SupabaseService) {}
+  constructor(private supabase: SupabaseService, private loading:LoadingService) {}
 
   ngOnInit() {
+    this.loading.show();
     this.cargarEspecialidades();
     this.cargarEspecialistas();
     this.cargarTurnos();
 
     this.filtroSubject.pipe(debounceTime(300)).subscribe(() => this.cargarTurnos());
+    this.loading.hide();
   }
 
   async cargarEspecialidades() {

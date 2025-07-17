@@ -1,7 +1,6 @@
 <div class="container mt-4">
   <h2>Mis Turnos (Especialista)</h2>
 
-  <!-- FILTROS -->
   <div class="row mb-3">
     <div class="col-md-4 mb-2">
       <input
@@ -36,7 +35,6 @@
     </div>
   </div>
 
-  <!-- LISTA DE TURNOS -->
   <div *ngFor="let turno of filtrados" class="card mb-3">
     <div class="card-body">
       <h5 class="card-title">{{ turno.especialidad | titlecase }}</h5>
@@ -55,6 +53,58 @@
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Acá van los modales que ya tenías: Historia Clínica, Motivo, Mensaje, Reseña -->
+
+<!-- Modal de motivo para cancelar o rechazar -->
+<div *ngIf="modalMotivoVisible" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>{{ accionMotivo === 'rechazar' ? 'Rechazar Turno' : 'Cancelar Turno' }}</h3>
+      <button class="btn-close" (click)="modalMotivoVisible = false">&times;</button>
+    </div>
+    <div class="modal-body">
+      <label for="motivo">Motivo:</label>
+      <textarea id="motivo" [(ngModel)]="motivo" placeholder="Ingrese el motivo..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-confirmar" (click)="enviarMotivo()">Confirmar</button>
+      <button class="btn-cancelar" (click)="modalMotivoVisible = false">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Finalizar Turno / Historia Clínica -->
+<div *ngIf="modalVisible" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Finalizar Turno</h3>
+      <button class="btn-close" (click)="cerrarModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <label>Altura:</label>
+      <input [(ngModel)]="altura" type="text" placeholder="Ej: 1.75" />
+
+      <label>Peso:</label>
+      <input [(ngModel)]="peso" type="text" placeholder="Ej: 70kg" />
+
+      <label>Temperatura:</label>
+      <input [(ngModel)]="temperatura" type="text" placeholder="Ej: 36.5°C" />
+
+      <label>Presión:</label>
+      <input [(ngModel)]="presion" type="text" placeholder="Ej: 120/80" />
+
+      <h5>Datos Adicionales:</h5>
+      <div *ngFor="let dato of datosDinamicos; let i = index" class="mb-2">
+        <input [(ngModel)]="dato.clave" placeholder="Clave" />
+        <input [(ngModel)]="dato.valor" placeholder="Valor" />
+        <button (click)="eliminarDatoDinamico(i)">Eliminar</button>
+      </div>
+      <button (click)="agregarDatoDinamico()">Agregar otro dato</button>
+    </div>
+    <div class="modal-footer">
+      <button (click)="guardarHistoriaClinica()">Guardar Historia</button>
+      <button (click)="cerrarModal()">Cancelar</button>
+    </div>
+  </div>
 </div>

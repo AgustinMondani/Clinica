@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SupabaseService } from '../core/supabase.service';
+import { LoadingService } from './loading.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -32,8 +33,8 @@ export class AuthService {
     if (!error && data.user) {
       await this.registrarLogIngreso(data.user.email ?? 'Usuario desconocido');
     }
-
     return { data, error };
+    
   }
 
   async logout() {

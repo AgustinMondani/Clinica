@@ -3,10 +3,12 @@ import { SupabaseService } from '../../core/supabase.service';
 import { AuthService } from '../../core/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register-especialista',
   templateUrl: './register-especialista.component.html',
+  styleUrls: ['./register-especialista.component.scss'],
   imports: [CommonModule, FormsModule]
 })
 export class RegisterEspecialistaComponent implements OnInit {
@@ -24,7 +26,7 @@ export class RegisterEspecialistaComponent implements OnInit {
 
   errorImagen = '';
 
-  constructor(private supabase: SupabaseService, private auth: AuthService) {}
+  constructor(private supabase: SupabaseService, private auth: AuthService, private router: Router) {}
 
   ngOnInit() {
     this.cargarEspecialidades();
@@ -108,5 +110,6 @@ export class RegisterEspecialistaComponent implements OnInit {
     }
 
     console.log('¡Registro exitoso! El administrador deberá aprobar tu cuenta.');
+    this.router.navigate(['/login']);
   }
 }

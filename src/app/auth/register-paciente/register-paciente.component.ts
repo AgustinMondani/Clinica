@@ -9,6 +9,7 @@ import { CaptchaDirective } from '../../directives/captcha.directive';
 @Component({
   selector: 'app-register-paciente',
   templateUrl: './register-paciente.component.html',
+  styleUrls: ['./register-paciente.component.scss'],
   imports: [CommonModule, FormsModule, CaptchaDirective]
 })
 

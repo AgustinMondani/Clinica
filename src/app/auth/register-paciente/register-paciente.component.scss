@@ -1,50 +1,41 @@
 .login-container {
-  min-height: 100vh;
-  background-image: url('https://oqnisprjqxdarqewgqqu.supabase.co/storage/v1/object/public/imagenes//fondo.jpg');
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
-  background-attachment: fixed;
+  margin: auto;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
 }
 
 .login-card {
-  background-color: #ffffff;
-  padding: 20rem 2rem;
+  background-color: #fff;
+  padding: 3rem 2rem;
   border-radius: 1rem;
-  width: 100%;
-  max-width: 600px; /* Limita ancho */
-  min-height: 80vh; /* Ocupa gran parte del alto */
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-  color: #333;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  width: 90;
+  max-width: 800px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  color: #212529;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  height: 90vh;
 }
 
 
 .login-card h2 {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: bold;
-  margin-bottom: 2rem;
+  margin-bottom: 5px;
   text-align: center;
 }
 
 
 .login-card label {
   font-weight: 600;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.1rem;
   display: block;
 }
 
 .login-card .form-control {
   font-size: 1rem;
-  padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
   border: 1px solid #ced4da;
   transition: border-color 0.3s;

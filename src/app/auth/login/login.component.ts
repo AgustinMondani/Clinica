@@ -51,18 +51,16 @@ export class LoginComponent {
   });
 
   if (error) {
-    this.errorGeneral = 'Error al iniciar sesión, credenciales invalidas';
+    this.errorGeneral = 'Error al iniciar sesión, debes confirmar tu mail';
     return;
   }
 
-  // Registramos el log de ingreso aquí
   try {
     await this.supabase.client
       .from('logs_ingresos')
       .insert([{ usuario: this.email }]);
   } catch (e) {
     console.error('Error registrando log de ingreso:', e);
-    // No interrumpe el flujo si falla el log
   }
 
   const userId = data.user.id;
@@ -112,8 +110,8 @@ export class LoginComponent {
         this.password = '12345678';
         break;
       case 'paciente3':
-        this.email = 'paciente3@mail.com';
-        this.password = 'pass1234';
+        this.email = 'pedrofernandez@yopmail.com';
+        this.password = '12345678';
         break;
       case 'especialista1':
         this.email = 'ricardo@yopmail.com';

@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { HistoriaClinicaService } from '../../core/historia-clinica.service';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { LoadingService } from '../../core/loading.service';
 
 @Component({
   selector: 'app-mi-perfil',
@@ -21,9 +22,10 @@ export class MiPerfilComponent implements OnInit {
   opciones: string[] = [];
   historias: any[] = [];
 
-  constructor(private supabase: SupabaseService, private router: Router, private historiaService: HistoriaClinicaService,) {}
+  constructor(private supabase: SupabaseService, private router: Router, private historiaService: HistoriaClinicaService, private loading: LoadingService) {}
 
   async ngOnInit() {
+    this.loading.show();
     const user = await this.supabase.getUsuarioActual();
     this.usuario = user;
     const userId = await this.supabase.getUserId();
@@ -49,6 +51,8 @@ export class MiPerfilComponent implements OnInit {
     } else if (user.rol === 'especialista') {
       this.opciones = ['Mis Turnos', 'Mis Horarios'];
     }
+
+    this.loading.hide();
   }
 
  generarHistoriaClinicaPDF() {

@@ -11,6 +11,7 @@ import autoTable from 'jspdf-autotable';
 
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
+import { LoadingService } from '../../core/loading.service';
 
 @Component({
   selector: 'app-admin-estadisticas',
@@ -41,9 +42,12 @@ export class AdminEstadisticasComponent implements OnInit {
   barChartDataMedicosTurnos15Dias: any[] = [];
   datosMedicosTurnos15Dias: any[] = [];
 
-  constructor(private estadisticasService: EstadisticasService) { }
+  constructor(private estadisticasService: EstadisticasService, private loading: LoadingService) { }
 
   async ngOnInit() {
+    
+    this.loading.show();
+
     this.datosEspecialidades = await this.estadisticasService.getTurnosPorEspecialidad();
     this.datosTurnosPorDia = await this.estadisticasService.getTurnosPorDia();
     this.logsIngresos = await this.estadisticasService.getLogIngresos();
@@ -52,6 +56,7 @@ export class AdminEstadisticasComponent implements OnInit {
     this.actualizarGraficoMedicos15Dias();
     this.actualizarGraficoTorta();
     this.actualizarGraficoLinea();
+    this.loading.hide();
   }
 
   actualizarGraficoTorta() {

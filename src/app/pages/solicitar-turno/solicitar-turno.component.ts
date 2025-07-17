@@ -151,8 +151,13 @@ export class SolicitarTurnoComponent implements OnInit {
       const diaTexto = this.getDiaTexto(fecha.getDay()).toLowerCase();
 
       if (this.horariosPorDia[diaTexto]) {
+
+        const year = fecha.getFullYear();
+        const month = String(fecha.getMonth() + 1).padStart(2, '0');
+        const day = String(fecha.getDate()).padStart(2, '0');
+////////////////////////
         this.fechasDisponibles.push({
-          iso: fecha.toISOString().split('T')[0],
+          iso: `${year}-${month}-${day}`, // en formato YYYY-MM-DD, en horario local
           texto: fecha.toLocaleDateString('es-AR', {
             weekday: 'long',
             year: 'numeric',
@@ -160,6 +165,16 @@ export class SolicitarTurnoComponent implements OnInit {
             day: 'numeric'
           })
         });
+////////////////////////
+        // this.fechasDisponibles.push({
+        //   iso: fecha.toISOString().split('T')[0],
+        //   texto: fecha.toLocaleDateString('es-AR', {
+        //     weekday: 'long',
+        //     year: 'numeric',
+        //     month: 'short',
+        //     day: 'numeric'
+        //   })
+        // });
       }
     }
   }
@@ -167,11 +182,11 @@ export class SolicitarTurnoComponent implements OnInit {
   async seleccionarFecha(fecha: string) {
     this.fechaSeleccionada = fecha;
     this.horariosDisponibles = [];
-//////////// Rompia porque me estaba tomando otra fecha horaria y me devolvia un dia antes
+    //////////// Rompia porque me estaba tomando otra fecha horaria y me devolvia un dia antes
     const partes = fecha.split('-');
     const fechaLocal = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2]));
     const diaTexto = this.getDiaTexto(fechaLocal.getDay()).toLowerCase();
-//////////
+    //////////
 
     console.log(diaTexto);
     const horariosDelDia = this.horariosPorDia[diaTexto];
