@@ -1,85 +1,144 @@
-.login-container {
-  margin: auto;
-  height: 100vh;
+
+body {
+  background: linear-gradient(135deg, #e3f2f9, #f9e3f3);
+  font-family: 'Poppins', sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 100vh;
+  margin: 0;
 }
 
+/* ===== Contenedor principal ===== */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+/* ===== Tarjeta del formulario ===== */
 .login-card {
-  background-color: #fff;
-  padding: 3rem 2rem;
-  border-radius: 1rem;
-  width: 90;
-  max-width: 800px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
-  color: #212529;
-  font-size: 1rem;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+  max-width: 900px;
+  width: 100%;
   transition: all 0.3s ease;
-  height: 90vh;
 }
 
+.login-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
+}
 
+/* ===== Título ===== */
 .login-card h2 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 5px;
   text-align: center;
-}
-
-
-.login-card label {
+  color: #6c63ff;
   font-weight: 600;
-  margin-bottom: 0.1rem;
+  margin-bottom: 1.8rem;
+}
+
+/* ===== Inputs y labels ===== */
+label {
+  font-weight: 500;
+  color: #5b5b5b;
   display: block;
+  margin-bottom: 5px;
 }
 
-.login-card .form-control {
-  font-size: 1rem;
-  border-radius: 0.5rem;
-  border: 1px solid #ced4da;
-  transition: border-color 0.3s;
+input.form-control {
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 0.6rem 0.8rem;
+  width: 100%;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  background-color: #fafafa;
 }
 
-.login-card .form-control:focus {
-  border-color: #007bff;
+input.form-control:focus {
   outline: none;
+  border-color: #a5c9ca;
+  box-shadow: 0 0 5px rgba(165, 201, 202, 0.5);
+  background-color: #ffffff;
 }
 
+/* ===== Botón de registro ===== */
+button.btn-success {
+  background-color: #a5c9ca;
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  padding: 0.8rem;
+  border-radius: 10px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+button.btn-success:hover {
+  background-color: #8ebdbf;
+  transform: scale(1.02);
+}
+
+/* ===== Errores ===== */
 .error {
-  color: #d9534f;
-  font-size: 0.95rem;
-  margin-top: 0.3rem;
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  margin-top: 4px;
 }
 
 .error-general {
+  background-color: rgba(255, 107, 107, 0.1);
+  border-left: 4px solid #ff6b6b;
+  padding: 0.6rem;
+  border-radius: 6px;
   color: #d9534f;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  font-weight: 700;
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 10px;
 }
 
-.login-card .row > div {
-  margin-bottom: 1.25rem;
-}
-
-
-.login-card button {
-  padding: 0.75rem;
-  font-size: 1.2rem;
-  font-weight: 600;
-  border-radius: 0.75rem;
-  width: 100%;
-  transition: background-color 0.3s;
-}
-
+/* ===== Responsividad ===== */
 @media (max-width: 768px) {
   .login-card {
-    padding: 2rem 1.5rem;
-    min-height: unset;
+    padding: 1.5rem;
+  }
+
+  .login-card h2 {
+    font-size: 1.3rem;
+  }
+
+  .row {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .col-md-6 {
+    width: 100%;
   }
 }
+
+@media (min-width: 1200px) {
+  .login-card {
+    max-width: 950px;
+  }
+}
+
+/* ===== Animación de entrada ===== */
+.login-card {
+  animation: fadeIn 0.6s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

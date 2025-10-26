@@ -1,1 +1,42 @@
+:root {
+  /* ajustá este valor si conocés la altura fija de tu navbar (ej. 64px) */
+  --nav-height: 64px;
+  --nav-offset-gap: 1rem; /* espacio extra entre navbar y contenido */
+}
+
+/* Si tu navbar está fijo en top */
+.navbar-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-height);
+  z-index: 1050; /* debe ser mayor que la tarjeta para que quede encima */
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  background: linear-gradient(90deg,#ffffffcc,#f7f7ffcc);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* Contenedor principal: se separa del navbar usando la variable */
+.main-content {
+  padding-top: calc(var(--nav-height) + var(--nav-offset-gap));
+  box-sizing: border-box;
+}
+
+/* Si usás .login-container como contenido principal, aplicalo ahí */
+.login-container {
+  /* mantenemos el padding pero ahora con la separación del navbar */
+  width: 100%;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+/* Para evitar que la tarjeta suba demasiado en pantallas pequeñas */
+@media (max-width: 768px) {
+  :root { --nav-height: 56px; } /* si tu navbar cambia de altura en mobile */
+  .login-card { padding: 1.2rem; border-radius: 12px; }
+}
 
