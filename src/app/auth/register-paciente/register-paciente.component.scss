@@ -1,117 +1,95 @@
-
+/* === Estilos generales === */
 body {
-  background: linear-gradient(135deg, #e3f2f9, #f9e3f3);
-  font-family: 'Poppins', sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
   margin: 0;
-}
-
-/* ===== Contenedor principal ===== */
-.login-container {
+  padding: 0;
+  background: #f3f4f6; /* fondo gris suave */
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
   justify-content: center;
-  align-items: center;
-  width: 100%;
-  padding: 1.5rem;
-  box-sizing: border-box;
+  align-items: flex-start;
+  min-height: 100vh;
 }
 
-/* ===== Tarjeta del formulario ===== */
+/* === Contenedor principal === */
+.login-container {
+  margin-top: 75px; /* separación desde el top */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* === Tarjeta de registro === */
 .login-card {
-  background-color: #ffffff;
-  border-radius: 20px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  padding: 2.5rem;
-  max-width: 900px;
-  width: 100%;
-  transition: all 0.3s ease;
+  background-color: #fff;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 900px; /* ideal para 1080p */
+  box-sizing: border-box;
+  overflow-y: auto;
+  max-height: calc(100vh - 100px); /* evita que se salga de pantalla */
 }
 
-.login-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
-}
-
-/* ===== Título ===== */
+/* === Título === */
 .login-card h2 {
   text-align: center;
-  color: #6c63ff;
+  margin-bottom: 25px;
+  font-size: 26px;
   font-weight: 600;
-  margin-bottom: 1.8rem;
+  color: #0f0fff;
 }
 
-/* ===== Inputs y labels ===== */
+/* === Campos del formulario === */
+.form-control {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 15px;
+  transition: all 0.2s ease-in-out;
+}
+
+.form-control:focus {
+  border-color: #198754;
+  box-shadow: 0 0 4px rgba(25, 135, 84, 0.3);
+}
+
+/* === Etiquetas === */
 label {
   font-weight: 500;
-  color: #5b5b5b;
-  display: block;
-  margin-bottom: 5px;
+  color: #333;
+  font-size: larger;
 }
 
-input.form-control {
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  padding: 0.6rem 0.8rem;
-  width: 100%;
-  transition: border-color 0.3s, box-shadow 0.3s;
-  background-color: #fafafa;
-}
-
-input.form-control:focus {
-  outline: none;
-  border-color: #a5c9ca;
-  box-shadow: 0 0 5px rgba(165, 201, 202, 0.5);
-  background-color: #ffffff;
-}
-
-/* ===== Botón de registro ===== */
+/* === Botón === */
 button.btn-success {
-  background-color: #a5c9ca;
+  background-color: #198754;
   border: none;
-  color: #fff;
-  font-weight: 600;
-  padding: 0.8rem;
+  padding: 12px;
+  font-size: 16px;
   border-radius: 10px;
-  transition: background-color 0.3s, transform 0.2s;
+  transition: background-color 0.2s ease-in-out;
 }
 
 button.btn-success:hover {
-  background-color: #8ebdbf;
-  transform: scale(1.02);
+  background-color: #157347;
 }
 
-/* ===== Errores ===== */
+/* === Errores === */
 .error {
-  color: #ff6b6b;
-  font-size: 0.85rem;
-  margin-top: 4px;
+  color: #dc3545;
+  font-size: 13px;
+  margin-top: 5px;
 }
 
-.error-general {
-  background-color: rgba(255, 107, 107, 0.1);
-  border-left: 4px solid #ff6b6b;
-  padding: 0.6rem;
-  border-radius: 6px;
-  color: #d9534f;
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-/* ===== Responsividad ===== */
+/* === Responsividad === */
 @media (max-width: 768px) {
   .login-card {
-    padding: 1.5rem;
-  }
-
-  .login-card h2 {
-    font-size: 1.3rem;
+    padding: 25px;
   }
 
   .row {
-    display: flex;
     flex-direction: column;
   }
 
@@ -119,26 +97,3 @@ button.btn-success:hover {
     width: 100%;
   }
 }
-
-@media (min-width: 1200px) {
-  .login-card {
-    max-width: 950px;
-  }
-}
-
-/* ===== Animación de entrada ===== */
-.login-card {
-  animation: fadeIn 0.6s ease forwards;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-

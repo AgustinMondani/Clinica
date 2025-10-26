@@ -64,7 +64,7 @@
 
         <div class="col-md-6 mb-3">
           <label>Imagen</label>
-          <input type="file" class="form-control" (change)="onFileSelected($event)" />
+          <input type="file" class="form-control" (change)="onFileSelected($event)" accept="image/*" />
           <div class="error" *ngIf="errorImagen">{{ errorImagen }}</div>
         </div>
       </div>

@@ -1,8 +1,8 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SupabaseService } from '../../core/supabase.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { CaptchaService } from '../../core/captcha.service';
 import { CaptchaDirective } from '../../directives/captcha.directive';
 
@@ -12,7 +12,6 @@ import { CaptchaDirective } from '../../directives/captcha.directive';
   styleUrls: ['./register-paciente.component.scss'],
   imports: [CommonModule, FormsModule, CaptchaDirective]
 })
-
 export class RegisterPacienteComponent implements OnInit {
   formData: any = {
     nombre: '',
@@ -51,8 +50,20 @@ export class RegisterPacienteComponent implements OnInit {
     }
   }
 
-  async registrar() {
+  async registrar(form: NgForm) {
     this.errorGeneral = '';
+
+    // Validación obligatoria de imágenes
+    if (!this.imagen1 || !this.imagen2) {
+      this.errorGeneral = 'Debes subir ambas imágenes.';
+      form.control.markAllAsTouched();
+      return;
+    }
+
+    if (!form.valid) {
+      this.errorGeneral = 'Por favor completa todos los campos obligatorios.';
+      return;
+    }
 
     const respuesta = Number(this.captchaRespuesta);
     if (!this.captchaService.validarRespuesta(respuesta)) {
@@ -77,25 +88,22 @@ export class RegisterPacienteComponent implements OnInit {
       return;
     }
 
-    const img1Path = `pacientes/${userId}_1.jpg`;
-    const img2Path = `pacientes/${userId}_2.jpg`;
-
+    // Subida de imágenes
+    let img1Url = '';
+    let img2Url = '';
     try {
-      await this.supabase.client.storage.from('imagenes').upload(img1Path, this.imagen1!, {
-        cacheControl: '3600',
-        upsert: false
-      });
-      await this.supabase.client.storage.from('imagenes').upload(img2Path, this.imagen2!, {
-        cacheControl: '3600',
-        upsert: false
-      });
+      const img1Path = `pacientes/${userId}_1.jpg`;
+      const img2Path = `pacientes/${userId}_2.jpg`;
+
+      await this.supabase.client.storage.from('imagenes').upload(img1Path, this.imagen1!, { cacheControl: '3600', upsert: false });
+      await this.supabase.client.storage.from('imagenes').upload(img2Path, this.imagen2!, { cacheControl: '3600', upsert: false });
+
+      img1Url = this.supabase.client.storage.from('imagenes').getPublicUrl(img1Path).data.publicUrl;
+      img2Url = this.supabase.client.storage.from('imagenes').getPublicUrl(img2Path).data.publicUrl;
     } catch (err) {
       this.errorGeneral = 'Error al subir las imágenes.';
       return;
     }
-
-    const img1Url = this.supabase.client.storage.from('imagenes').getPublicUrl(img1Path).data.publicUrl;
-    const img2Url = this.supabase.client.storage.from('imagenes').getPublicUrl(img2Path).data.publicUrl;
 
     await this.supabase.client.from('pacientes').insert({
       id: userId,

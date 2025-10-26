@@ -27,66 +27,93 @@ export class RegisterAdminComponent {
 
   constructor(private supabase: SupabaseService, private router: Router) {}
 
+  // --- Manejo del archivo seleccionado ---
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (!file) {
       this.imagen = null;
-      this.errorImagen = 'Selecciona una imagen.';
+      this.errorImagen = 'Debe seleccionar una imagen.';
       return;
     }
+
     if (!file.type.startsWith('image/')) {
       this.imagen = null;
-      this.errorImagen = 'El archivo debe ser una imagen.';
+      this.errorImagen = 'El archivo debe ser una imagen válida.';
       return;
     }
+
     this.errorImagen = '';
     this.imagen = file;
   }
 
+  // --- Registro del administrador ---
   async registrar() {
     this.errorGeneral = '';
 
+    if (!this.imagen) {
+      this.errorImagen = 'Debe seleccionar una imagen antes de continuar.';
+      return;
+    }
+
     try {
+      // Crear usuario en Auth
       const { data, error } = await this.supabase.client.auth.signUp({
         email: this.formData.email,
         password: this.formData.password
       });
 
       if (error) {
-        this.errorGeneral = 'Error al registrar: ' + error.message;
+        this.errorGeneral = 'Error al registrar usuario: ' + error.message;
         return;
       }
 
       const userId = data.user?.id;
       if (!userId) {
-        this.errorGeneral = 'Error inesperado al obtener el usuario.';
+        this.errorGeneral = 'No se pudo obtener el ID del usuario.';
         return;
       }
 
-      // Subir imagen
+      // Subir imagen al Storage
       const imgPath = `administradores/${userId}.jpg`;
 
-      await this.supabase.client.storage.from('imagenes').upload(imgPath, this.imagen!, {
-        cacheControl: '3600',
-        upsert: false
-      });
+      const { error: uploadError } = await this.supabase.client.storage
+        .from('imagenes')
+        .upload(imgPath, this.imagen!, { cacheControl: '3600', upsert: false });
 
-      const imgUrl = this.supabase.client.storage.from('imagenes').getPublicUrl(imgPath).data.publicUrl;
+      if (uploadError) {
+        this.errorGeneral = 'Error al subir la imagen: ' + uploadError.message;
+        return;
+      }
 
-      // Insertar en tabla administradores
-      await this.supabase.client.from('administradores').insert({
-        id: userId,
-        nombre: this.formData.nombre,
-        apellido: this.formData.apellido,
-        edad: this.formData.edad,
-        dni: this.formData.dni,
-        email: this.formData.email,
-        imagen: imgUrl
-      });
+      // Obtener URL pública
+      const { data: publicUrlData } = this.supabase.client
+        .storage
+        .from('imagenes')
+        .getPublicUrl(imgPath);
 
-      // Navegar y resetear errores
+      const imgUrl = publicUrlData.publicUrl;
+
+      // Insertar en tabla "administradores"
+      const { error: insertError } = await this.supabase.client
+        .from('administradores')
+        .insert({
+          id: userId,
+          nombre: this.formData.nombre,
+          apellido: this.formData.apellido,
+          edad: this.formData.edad,
+          dni: this.formData.dni,
+          email: this.formData.email,
+          imagen: imgUrl
+        });
+
+      if (insertError) {
+        this.errorGeneral = 'Error al guardar el administrador: ' + insertError.message;
+        return;
+      }
+
       this.errorGeneral = '';
       this.router.navigate(['/admin']);
+
     } catch (err: any) {
       this.errorGeneral = 'Error inesperado: ' + err.message;
     }

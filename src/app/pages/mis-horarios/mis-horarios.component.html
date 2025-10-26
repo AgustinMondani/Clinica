@@ -1,43 +1,52 @@
 <div class="container mt-4">
   <h2>Mis Horarios</h2>
 
-  <form class="row g-2 mb-4" (ngSubmit)="agregarHorario()">
-    <div class="col-md-3">
-      <label class="form-label">Especialidad</label>
-     <select class="form-select" [(ngModel)]="nueva.especialidad" name="especialidad" required>
-  <option *ngFor="let esp of especialidades" [value]="esp">{{ esp }}</option>
-</select>
-    </div>
-
-    <div class="col-md-4">
-  <label class="form-label">Días</label>
-  <div *ngFor="let dia of diasSemana" class="form-check">
-    <input
-      class="form-check-input"
-      type="checkbox"
-      [value]="dia"
-      (change)="toggleDiaSeleccionado($event)"
-      [checked]="nueva.dias.includes(dia)"
-      id="dia-{{dia}}"
-    />
-    <label class="form-check-label" for="dia-{{dia}}">{{ dia }}</label>
+  <form class="row g-3 mb-4" (ngSubmit)="agregarHorario()">
+  <div class="col-md-3">
+    <label class="form-label">Especialidad</label>
+    <select class="form-select" [(ngModel)]="nueva.especialidad" name="especialidad" required>
+      <option *ngFor="let esp of especialidades" [value]="esp">{{ esp }}</option>
+    </select>
   </div>
+
+  <div class="col-md-4">
+    <label class="form-label">Días</label>
+    <div *ngFor="let dia of diasSemana" class="form-check">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        [value]="dia"
+        (change)="toggleDiaSeleccionado($event)"
+        [checked]="nueva.dias.includes(dia)"
+        id="dia-{{ dia }}"
+      />
+      <label class="form-check-label" for="dia-{{ dia }}">{{ dia }}</label>
+    </div>
+  </div>
+
+  <div class="col-md-2">
+    <label class="form-label">Desde</label>
+    <select class="form-select" [(ngModel)]="nueva.hora_desde" name="desde" required>
+      <option *ngFor="let hora of horasDisponibles" [value]="hora">{{ hora }}</option>
+    </select>
+  </div>
+
+  <div class="col-md-2">
+    <label class="form-label">Hasta</label>
+    <select class="form-select" [(ngModel)]="nueva.hora_hasta" name="hasta" required>
+      <option *ngFor="let hora of horasDisponibles" [value]="hora">{{ hora }}</option>
+    </select>
+  </div>
+
+  <div class="col-md-2 d-flex align-items-end">
+    <button class="btn btn-primary w-100" type="submit">Agregar</button>
+  </div>
+</form>
+
+<div *ngIf="mensajeError" class="alert alert-danger text-center mt-2">
+  {{ mensajeError }}
 </div>
 
-    <div class="col-md-2">
-      <label class="form-label">Desde</label>
-      <input type="time" class="form-control" [(ngModel)]="nueva.hora_desde" name="desde" required />
-    </div>
-
-    <div class="col-md-2">
-      <label class="form-label">Hasta</label>
-      <input type="time" class="form-control" [(ngModel)]="nueva.hora_hasta" name="hasta" required />
-    </div>
-
-    <div class="col-md-2 d-flex align-items-end">
-      <button class="btn btn-primary w-100" type="submit">Agregar</button>
-    </div>
-  </form>
 
   <div *ngIf="horarios.length === 0">No hay horarios cargados.</div>
 
