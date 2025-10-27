@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { SupabaseService } from '../../core/supabase.service';
-import { TurnoService } from '../../core/turno.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { SupabaseService } from '../../core/supabase.service';
+import { TurnoService } from '../../core/turno.service';
 import { HistoriaClinicaService } from '../../core/historia-clinica.service';
 import { ResaltarDirective } from '../../directives/resaltar.directive';
 
@@ -10,18 +10,22 @@ import { ResaltarDirective } from '../../directives/resaltar.directive';
   selector: 'app-mis-turnos-especialista',
   templateUrl: './mis-turnos-especialista.component.html',
   styleUrls: ['./mis-turnos-especialista.component.scss'],
-  imports: [CommonModule, FormsModule, ResaltarDirective],
-  standalone: true
+  standalone: true,
+  imports: [CommonModule, FormsModule, ResaltarDirective]
 })
 export class MisTurnosEspecialistaComponent implements OnInit {
   turnos: any[] = [];
   filtrados: any[] = [];
   filtro: string = '';
-  filtroFecha: string = '';
-  filtroEstado: string = '';
   fechasUnicas: string[] = [];
 
   pacientesMap: Record<string, { nombre: string; apellido: string }> = {};
+
+  mensaje: string = '';
+  tipoMensaje: 'error' | 'success' | 'info' = 'info';
+
+  motivosRechazo: Record<string, string> = {};
+  motivosCancelacion: Record<string, string> = {};
 
   modalVisible: boolean = false;
   turnoSeleccionado: any = null;
@@ -30,18 +34,8 @@ export class MisTurnosEspecialistaComponent implements OnInit {
   peso: string = '';
   temperatura: string = '';
   presion: string = '';
+  resena: string = '';
   datosDinamicos: { clave: string; valor: string }[] = [{ clave: '', valor: '' }];
-
-  modalMotivoVisible: boolean = false;
-  motivo: string = '';
-  accionMotivo: 'rechazar' | 'cancelar' | null = null;
-  turnoConMotivo: any = null;
-
-  modalMensajeVisible: boolean = false;
-  mensajeModal: string = '';
-
-  modalResenaVisible: boolean = false;
-  resenaMostrar: string = '';
 
   constructor(
     private supabase: SupabaseService,
@@ -50,105 +44,104 @@ export class MisTurnosEspecialistaComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    const userId = await this.supabase.getUserId();
-    const data = await this.turnoService.obtenerTurnosPorUsuario(userId!, 'especialista');
-    this.turnos = data || [];
+    await this.refrescarTurnos();
     this.pacientesMap = await this.supabase.cargarPacientes();
-
-    this.generarFechasUnicas();
-    this.aplicarFiltro();
   }
 
-  generarFechasUnicas() {
+  private generarFechasUnicas() {
     const fechas = this.turnos.map(t => t.fecha);
     this.fechasUnicas = Array.from(new Set(fechas));
   }
 
   aplicarFiltro() {
-    const f = this.filtro.toLowerCase();
-
+    const f = (this.filtro || '').toLowerCase();
     this.filtrados = this.turnos.filter(t => {
       const paciente = this.pacientesMap[t.paciente_id];
       const nombrePaciente = paciente?.nombre?.toLowerCase() || '';
       const apellidoPaciente = paciente?.apellido?.toLowerCase() || '';
       const especialidad = t.especialidad?.toLowerCase() || '';
-      const nombreTurno = t.nombre_paciente?.toLowerCase() || '';
-      const id = t.paciente_id?.toLowerCase() || '';
-
-      const coincideTexto =
-        especialidad.includes(f) ||
-        nombreTurno.includes(f) ||
-        id.includes(f) ||
-        nombrePaciente.includes(f) ||
-        apellidoPaciente.includes(f);
-
-      const coincideFecha = this.filtroFecha ? t.fecha === this.filtroFecha : true;
-      const coincideEstado = this.filtroEstado ? t.estado === this.filtroEstado : true;
-
-      return coincideTexto && coincideFecha && coincideEstado;
+      const coincideTexto = especialidad.includes(f) || nombrePaciente.includes(f) || apellidoPaciente.includes(f);
+      return coincideTexto;
     });
   }
 
-  limpiarFiltros() {
+  limpiarFiltro() {
     this.filtro = '';
-    this.filtroFecha = '';
-    this.filtroEstado = '';
     this.aplicarFiltro();
+    this.mensaje = '';
+  }
+
+  mostrarMensaje(texto: string, tipo: 'error' | 'success' | 'info' = 'info') {
+    this.mensaje = texto;
+    this.tipoMensaje = tipo;
+    setTimeout(() => { this.mensaje = ''; }, 5000);
   }
 
   async aceptarTurno(turno: any) {
-    await this.turnoService.actualizarTurno(turno.id, { estado: 'aceptado' });
-    await this.refrescarTurnos();
-    this.mostrarMensaje('Turno aceptado con éxito');
-  }
-
-  abrirModalMotivo(accion: 'rechazar' | 'cancelar', turno: any) {
-    this.accionMotivo = accion;
-    this.turnoConMotivo = turno;
-    this.motivo = '';
-    this.modalMotivoVisible = true;
-  }
-
-  async enviarMotivo() {
-    if (!this.motivo.trim()) {
-      this.mostrarMensaje('Debe ingresar un motivo.');
-      return;
+    try {
+      await this.turnoService.actualizarTurno(turno.id, { estado: 'aceptado' });
+      await this.refrescarTurnos();
+      this.mostrarMensaje('Turno aceptado con éxito', 'success');
+    } catch (err) {
+      console.error(err);
+      this.mostrarMensaje('Error al aceptar turno', 'error');
     }
-
-    if (!this.turnoConMotivo || !this.accionMotivo) {
-      this.modalMotivoVisible = false;
-      return;
-    }
-
-    const estado = this.accionMotivo === 'rechazar' ? 'rechazado' : 'cancelado';
-
-    await this.turnoService.actualizarTurno(this.turnoConMotivo.id, {
-      estado,
-      comentario_especialista: this.motivo.trim()
-    });
-
-    this.modalMotivoVisible = false;
-    await this.refrescarTurnos();
-    this.mostrarMensaje(`Turno ${estado} con éxito.`);
-  }
-
-  async cancelarTurno(turno: any) {
-    this.abrirModalMotivo('cancelar', turno);
   }
 
   async rechazarTurno(turno: any) {
-    this.abrirModalMotivo('rechazar', turno);
+    const motivo = this.motivosRechazo[turno.id];
+    if (!motivo || !motivo.trim()) {
+      this.mostrarMensaje('Debe ingresar un motivo para rechazar el turno', 'error');
+      return;
+    }
+    try {
+      await this.turnoService.actualizarTurno(turno.id, {
+        estado: 'rechazado',
+        comentario_especialista: motivo.trim()
+      });
+      this.motivosRechazo[turno.id] = '';
+      await this.refrescarTurnos();
+      this.mostrarMensaje('Turno rechazado con éxito', 'success');
+    } catch (err) {
+      console.error(err);
+      this.mostrarMensaje('Error al rechazar turno', 'error');
+    }
+  }
+
+  async cancelarTurno(turno: any) {
+    const motivo = this.motivosCancelacion[turno.id];
+    if (!motivo || !motivo.trim()) {
+      this.mostrarMensaje('Debe ingresar un motivo para cancelar el turno', 'error');
+      return;
+    }
+
+    if (['cancelado','realizado','rechazado'].includes(turno.estado)) {
+      this.mostrarMensaje('No puede cancelar este turno', 'error');
+      return;
+    }
+
+    try {
+      await this.turnoService.actualizarTurno(turno.id, {
+        estado: 'cancelado',
+        comentario_especialista: motivo.trim()
+      });
+      this.motivosCancelacion[turno.id] = '';
+      await this.refrescarTurnos();
+      this.mostrarMensaje('Turno cancelado con éxito', 'success');
+    } catch (err) {
+      console.error(err);
+      this.mostrarMensaje('Error al cancelar turno', 'error');
+    }
   }
 
   abrirModalFinalizarTurno(turno: any) {
     this.turnoSeleccionado = turno;
-
     this.altura = '';
     this.peso = '';
     this.temperatura = '';
     this.presion = '';
+    this.resena = '';
     this.datosDinamicos = [{ clave: '', valor: '' }];
-
     this.modalVisible = true;
   }
 
@@ -158,9 +151,7 @@ export class MisTurnosEspecialistaComponent implements OnInit {
   }
 
   agregarDatoDinamico() {
-    if (this.datosDinamicos.length < 3) {
-      this.datosDinamicos.push({ clave: '', valor: '' });
-    }
+    if (this.datosDinamicos.length < 10) this.datosDinamicos.push({ clave: '', valor: '' });
   }
 
   eliminarDatoDinamico(index: number) {
@@ -170,19 +161,16 @@ export class MisTurnosEspecialistaComponent implements OnInit {
   async guardarHistoriaClinica() {
     if (!this.turnoSeleccionado) return;
 
-    if (!this.altura || !this.peso || !this.temperatura || !this.presion) {
-      this.mostrarMensaje('Complete todos los datos fijos de la historia clínica.');
+    if (!this.altura || !this.peso || !this.temperatura || !this.presion || !this.resena) {
+      this.mostrarMensaje('Complete todos los campos obligatorios', 'error');
       return;
     }
 
     const especialista_id = await this.supabase.getUserId();
-    const paciente_id = this.turnoSeleccionado.paciente_id;
-    const turno_id = this.turnoSeleccionado.id;
-
-    const historiaClinica = {
-      paciente_id,
+    const historia = {
+      paciente_id: this.turnoSeleccionado.paciente_id,
       especialista_id,
-      turno_id,
+      turno_id: this.turnoSeleccionado.id,
       altura: this.altura,
       peso: this.peso,
       temperatura: this.temperatura,
@@ -191,25 +179,18 @@ export class MisTurnosEspecialistaComponent implements OnInit {
     };
 
     try {
-      await this.historiaService.crearHistoria(historiaClinica);
-      await this.turnoService.actualizarTurno(turno_id, { estado: 'realizado' });
-      this.modalVisible = false;
-      this.mostrarMensaje('Historia clínica guardada exitosamente');
+      await this.historiaService.crearHistoria(historia);
+      await this.turnoService.actualizarTurno(this.turnoSeleccionado.id, {
+        estado: 'realizado',
+        resena: this.resena.trim()
+      });
+      this.cerrarModal();
+      this.mostrarMensaje('Turno finalizado y reseña guardada', 'success');
       await this.refrescarTurnos();
-    } catch (error) {
-      console.error('Error al guardar historia clínica:', error);
-      this.mostrarMensaje('Ocurrió un error al guardar la historia clínica');
+    } catch (err) {
+      console.error(err);
+      this.mostrarMensaje('Error al guardar historia clínica', 'error');
     }
-  }
-
-  mostrarMensaje(texto: string) {
-    this.mensajeModal = texto;
-    this.modalMensajeVisible = true;
-  }
-
-  cerrarModalMensaje() {
-    this.modalMensajeVisible = false;
-    this.mensajeModal = '';
   }
 
   async refrescarTurnos() {
@@ -221,12 +202,10 @@ export class MisTurnosEspecialistaComponent implements OnInit {
   }
 
   verResena(turno: any) {
-    this.resenaMostrar = turno.resena;
-    this.modalResenaVisible = true;
+    this.mostrarMensaje(`Reseña: ${turno.resena}`, 'info');
   }
 
-  cerrarModalResena() {
-    this.modalResenaVisible = false;
-    this.resenaMostrar = '';
+  obtenerMotivo(turno: any): string | null {
+    return turno.comentario_especialista || turno.comentario_paciente || turno.comentario_cancelacion || null;
   }
 }

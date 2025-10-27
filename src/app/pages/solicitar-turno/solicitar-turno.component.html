@@ -2,7 +2,6 @@
 
   <h2>Solicitar Turno</h2>
 
-  <!-- Mensaje de notificación -->
   <div *ngIf="mensaje" class="mensaje" [ngClass]="{
     'error': tipoMensaje === 'error',
     'success': tipoMensaje === 'success',
@@ -12,31 +11,20 @@
   </div>
 
   <div class="form-group">
-    <label for="especialidadBuscada">Especialidad</label>
-    <input
-      type="text"
-      id="especialidadBuscada"
-      [(ngModel)]="especialidadBuscada"
-      (keyup.enter)="buscarEspecialistas()"
-      placeholder="Ingrese especialidad"
-    />
-    <button (click)="buscarEspecialistas()">Buscar</button>
+    <label for="especialidadSelect">Especialidad</label>
+    <select id="especialidadSelect" [(ngModel)]="especialidadSeleccionada" (change)="onEspecialidadChange()">
+      <option [ngValue]="null">Seleccione una especialidad</option>
+      <option *ngFor="let esp of especialidades" [value]="esp">{{ esp }}</option>
+    </select>
   </div>
 
-  <div *ngIf="especialistas.length > 0" class="especialistas-lista">
+  <div *ngIf="especialistasFiltrados().length > 0" class="especialistas-lista">
     <h3>Especialistas disponibles</h3>
     <ul>
-      <li *ngFor="let esp of especialistas" (click)="seleccionarEspecialista(esp)" [class.seleccionado]="esp === especialistaSeleccionado">
-        {{ esp.nombre }} {{ esp.apellido }} - ({{ esp.especialidades.join(', ') }})
+      <li *ngFor="let esp of especialistasFiltrados()" (click)="seleccionarEspecialista(esp)" [class.seleccionado]="esp === especialistaSeleccionado">
+        {{ esp.nombre }} {{ esp.apellido }}
       </li>
     </ul>
-  </div>
-
-  <div *ngIf="especialistaSeleccionado && especialistaSeleccionado.especialidades.length > 1">
-    <label>Seleccione especialidad:</label>
-    <select [(ngModel)]="especialidadSeleccionada" (change)="onEspecialidadChange()">
-      <option *ngFor="let esp of especialistaSeleccionado.especialidades" [value]="esp">{{ esp }}</option>
-    </select>
   </div>
 
   <div *appMostrarAdmin="true" class="form-group">

@@ -12,21 +12,21 @@ import { MostrarAdminDirective } from '../../directives/mostrar-admin.directive'
   imports: [CommonModule, FormsModule, MostrarAdminDirective]
 })
 export class SolicitarTurnoComponent implements OnInit {
-  especialidadBuscada: string = '';
+  especialidades: string[] = [];
   especialistas: any[] = [];
   especialistaSeleccionado: any = null;
   especialidadSeleccionada: string | null = null;
+
   fechasDisponibles: { iso: string; texto: string }[] = [];
   horariosDisponibles: { hora: string; ocupado: boolean }[] = [];
   fechaSeleccionada: string | null = null;
   horarioSeleccionado: string | null = null;
+
   rolUsuario: string = '';
   pacientes: any[] = [];
   pacienteSeleccionado: string | null = null;
 
-  horariosPorDia: {
-    [dia: string]: { desde: string; hasta: string }[]
-  } = {};
+  horariosPorDia: { [dia: string]: { desde: string; hasta: string }[] } = {};
 
   mensaje: string | null = null;
   tipoMensaje: 'error' | 'success' | 'info' | null = null;
@@ -36,6 +36,21 @@ export class SolicitarTurnoComponent implements OnInit {
   async ngOnInit() {
     const user = await this.supabase.getUsuarioActual();
     this.rolUsuario = user?.rol || '';
+
+    const { data: espData, error: espError } = await this.supabase.client
+      .from('especialidades')
+      .select('nombre');
+    if (espError) console.error('Error fetching especialidades:', espError);
+    this.especialidades = (espData || []).map((e: any) => e.nombre);
+
+    const { data: especData, error: especError } = await this.supabase.client
+      .from('especialistas')
+      .select('*, especialista_especialidad(especialidad:especialidades(nombre))');
+    if (especError) console.error('Error fetching especialistas:', especError);
+    this.especialistas = (especData || []).map((e: any) => ({
+      ...e,
+      especialidades: e.especialista_especialidad.map((esp: any) => esp.especialidad.nombre)
+    }));
 
     if (this.rolUsuario === 'admin') {
       const { data, error } = await this.supabase.client
@@ -55,63 +70,25 @@ export class SolicitarTurnoComponent implements OnInit {
     }, duracionSegundos * 1000);
   }
 
-  async buscarEspecialistas() {
-    if (!this.especialidadBuscada.trim()) {
-      this.mostrarMensaje('Ingrese una especialidad válida', 'error');
-      return;
-    }
-
-    const { data, error } = await this.supabase.client
-      .from('especialistas')
-      .select('*, especialista_especialidad(especialidad:especialidades(nombre))');
-
-    if (error) {
-      console.error('[buscarEspecialistas] error:', error);
-      return;
-    }
-
-    this.especialistas = (data || [])
-      .filter((e: any) =>
-        e.especialista_especialidad?.some(
-          (esp: any) => esp.especialidad.nombre.toLowerCase() === this.especialidadBuscada.trim().toLowerCase()
-        )
-      )
-      .map((e: any) => ({
-        ...e,
-        especialidades: e.especialista_especialidad.map((esp: any) => esp.especialidad.nombre)
-      }));
-
-    this.especialistaSeleccionado = null;
-    this.especialidadSeleccionada = null;
-    this.fechasDisponibles = [];
-    this.fechaSeleccionada = null;
-    this.horariosDisponibles = [];
-    this.horarioSeleccionado = null;
-    this.horariosPorDia = {};
+  especialistasFiltrados() {
+    if (!this.especialidadSeleccionada) return [];
+    return this.especialistas.filter((esp: any) =>
+      esp.especialidades.includes(this.especialidadSeleccionada!)
+    );
   }
 
   async seleccionarEspecialista(esp: any) {
     this.especialistaSeleccionado = esp;
-
-    if (esp.especialidades.length === 1) {
-      this.especialidadSeleccionada = esp.especialidades[0];
-      await this.cargarHorariosEspecialista();
-      this.generarFechasDisponibles();
-    } else {
-      this.especialidadSeleccionada = null;
-      this.fechasDisponibles = [];
-      this.horariosPorDia = {};
-      this.horariosDisponibles = [];
-    }
+    await this.cargarHorariosEspecialista();
+    this.generarFechasDisponibles();
+    this.fechaSeleccionada = null;
+    this.horarioSeleccionado = null;
   }
 
   async onEspecialidadChange() {
     if (this.especialidadSeleccionada) {
-      await this.cargarHorariosEspecialista();
-      this.generarFechasDisponibles();
-    } else {
+      this.especialistaSeleccionado = null;
       this.fechasDisponibles = [];
-      this.horariosPorDia = {};
       this.horariosDisponibles = [];
     }
   }
@@ -136,8 +113,6 @@ export class SolicitarTurnoComponent implements OnInit {
       if (!this.horariosPorDia[dia]) this.horariosPorDia[dia] = [];
       this.horariosPorDia[dia].push({ desde: item.desde, hasta: item.hasta });
     }
-
-    console.log('[DEBUG] horariosPorDia:', this.horariosPorDia);
   }
 
   generarFechasDisponibles() {
@@ -151,13 +126,12 @@ export class SolicitarTurnoComponent implements OnInit {
       const diaTexto = this.getDiaTexto(fecha.getDay()).toLowerCase();
 
       if (this.horariosPorDia[diaTexto]) {
-
         const year = fecha.getFullYear();
         const month = String(fecha.getMonth() + 1).padStart(2, '0');
         const day = String(fecha.getDate()).padStart(2, '0');
-////////////////////////
+
         this.fechasDisponibles.push({
-          iso: `${year}-${month}-${day}`, // en formato YYYY-MM-DD, en horario local
+          iso: `${year}-${month}-${day}`,
           texto: fecha.toLocaleDateString('es-AR', {
             weekday: 'long',
             year: 'numeric',
@@ -165,16 +139,6 @@ export class SolicitarTurnoComponent implements OnInit {
             day: 'numeric'
           })
         });
-////////////////////////
-        // this.fechasDisponibles.push({
-        //   iso: fecha.toISOString().split('T')[0],
-        //   texto: fecha.toLocaleDateString('es-AR', {
-        //     weekday: 'long',
-        //     year: 'numeric',
-        //     month: 'short',
-        //     day: 'numeric'
-        //   })
-        // });
       }
     }
   }
@@ -182,19 +146,13 @@ export class SolicitarTurnoComponent implements OnInit {
   async seleccionarFecha(fecha: string) {
     this.fechaSeleccionada = fecha;
     this.horariosDisponibles = [];
-    //////////// Rompia porque me estaba tomando otra fecha horaria y me devolvia un dia antes
+
     const partes = fecha.split('-');
     const fechaLocal = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2]));
     const diaTexto = this.getDiaTexto(fechaLocal.getDay()).toLowerCase();
-    //////////
 
-    console.log(diaTexto);
     const horariosDelDia = this.horariosPorDia[diaTexto];
-
     if (!horariosDelDia || horariosDelDia.length === 0) {
-      console.log("aca esta el error lpm ");
-      console.log(horariosDelDia);
-      console.log(this.horariosDisponibles);
       this.mostrarMensaje('No hay horarios disponibles para este día.', 'error');
       return;
     }
@@ -226,14 +184,9 @@ export class SolicitarTurnoComponent implements OnInit {
       hasta.setHours(hastaHora, hastaMin, 0, 0);
 
       let actual = new Date(desde);
-
       while (actual < hasta) {
         const horaStr = actual.toTimeString().substring(0, 5);
-        const ocupado = horariosOcupados.includes(horaStr);
-        posiblesHorarios.push({
-          hora: horaStr,
-          ocupado
-        });
+        posiblesHorarios.push({ hora: horaStr, ocupado: horariosOcupados.includes(horaStr) });
         actual = new Date(actual.getTime() + intervaloMinutos * 60000);
       }
     }
@@ -301,10 +254,8 @@ export class SolicitarTurnoComponent implements OnInit {
   }
 
   private resetForm() {
-    this.especialidadBuscada = '';
-    this.especialistas = [];
-    this.especialistaSeleccionado = null;
     this.especialidadSeleccionada = null;
+    this.especialistaSeleccionado = null;
     this.fechasDisponibles = [];
     this.fechaSeleccionada = null;
     this.horariosDisponibles = [];

@@ -27,7 +27,6 @@ export class RegisterAdminComponent {
 
   constructor(private supabase: SupabaseService, private router: Router) {}
 
-  // --- Manejo del archivo seleccionado ---
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (!file) {
@@ -46,7 +45,6 @@ export class RegisterAdminComponent {
     this.imagen = file;
   }
 
-  // --- Registro del administrador ---
   async registrar() {
     this.errorGeneral = '';
 
@@ -56,7 +54,6 @@ export class RegisterAdminComponent {
     }
 
     try {
-      // Crear usuario en Auth
       const { data, error } = await this.supabase.client.auth.signUp({
         email: this.formData.email,
         password: this.formData.password
@@ -73,7 +70,6 @@ export class RegisterAdminComponent {
         return;
       }
 
-      // Subir imagen al Storage
       const imgPath = `administradores/${userId}.jpg`;
 
       const { error: uploadError } = await this.supabase.client.storage
@@ -85,7 +81,6 @@ export class RegisterAdminComponent {
         return;
       }
 
-      // Obtener URL pública
       const { data: publicUrlData } = this.supabase.client
         .storage
         .from('imagenes')
@@ -93,7 +88,6 @@ export class RegisterAdminComponent {
 
       const imgUrl = publicUrlData.publicUrl;
 
-      // Insertar en tabla "administradores"
       const { error: insertError } = await this.supabase.client
         .from('administradores')
         .insert({

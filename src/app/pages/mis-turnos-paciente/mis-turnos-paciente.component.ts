@@ -24,6 +24,12 @@ export class MisTurnosPacienteComponent implements OnInit {
 
   especialistasMap: Record<string, { nombre: string; apellido: string }> = {};
 
+  mensaje: string | null = null;
+  tipoMensaje: 'error' | 'success' | 'info' | null = null;
+  comentariosCancelacion: Record<string, string> = {};
+  comentariosCalificacion: Record<string, string> = {};
+  calificaciones: Record<string, number> = {};
+
   constructor(
     private turnoService: TurnoService,
     private supabase: SupabaseService
@@ -37,15 +43,27 @@ export class MisTurnosPacienteComponent implements OnInit {
 
     this.especialistasMap = await this.supabase.cargarEspecialistas();
 
-    // Generar lista única de fechas
     this.fechasUnicas = [...new Set(this.turnos.map(t => t.fecha))];
+  }
+
+  mostrarMensaje(texto: string, tipo: 'error' | 'success' | 'info' = 'info', duracionSegundos = 5) {
+    this.mensaje = texto;
+    this.tipoMensaje = tipo;
+    setTimeout(() => {
+      this.mensaje = null;
+      this.tipoMensaje = null;
+    }, duracionSegundos * 1000);
   }
 
   actualizarTurnosFiltrados() {
     this.turnosFiltrados = this.turnos.filter(t => {
       const coincideFecha = this.filtroFecha ? t.fecha === this.filtroFecha : true;
       const coincideEstado = this.filtroEstado ? t.estado === this.filtroEstado : true;
-      return coincideFecha && coincideEstado;
+      const filtroTexto = this.filtro.trim().toLowerCase();
+      const especialidad = t.especialidad?.toLowerCase() ?? '';
+      const nombreCompleto = `${this.especialistasMap[t.especialista_id]?.nombre ?? ''} ${this.especialistasMap[t.especialista_id]?.apellido ?? ''}`.toLowerCase();
+      const coincideFiltroUnico = filtroTexto ? especialidad.includes(filtroTexto) || nombreCompleto.includes(filtroTexto) : true;
+      return coincideFecha && coincideEstado && coincideFiltroUnico;
     });
   }
 
@@ -57,47 +75,61 @@ export class MisTurnosPacienteComponent implements OnInit {
   }
 
   async cancelarTurno(turno: any) {
-    if (turno.estado === 'realizado') {
-      alert('No puede cancelar un turno ya realizado');
-      return;
-    }
-    const comentario = prompt('¿Por qué desea cancelar el turno?');
-    if (comentario) {
-      await this.turnoService.actualizarTurno(turno.id, {
-        estado: 'cancelado',
-        comentario_paciente: comentario
-      });
-      alert('Turno cancelado');
-      this.ngOnInit();
-    }
+  if (turno.estado !== 'pendiente') {
+    this.mostrarMensaje('No puede cancelar un turno que ya fue realizado o cancelado', 'error');
+    return;
   }
+
+  const comentario = this.comentariosCancelacion[turno.id];
+  if (!comentario || comentario.trim() === '') {
+    this.mostrarMensaje('Debe ingresar un comentario para cancelar el turno', 'error');
+    return;
+  }
+
+  await this.turnoService.actualizarTurno(turno.id, {
+    estado: 'cancelado',
+    comentario_paciente: comentario.trim()
+  });
+
+  this.mostrarMensaje('Turno cancelado correctamente', 'success');
+  this.comentariosCancelacion[turno.id] = '';
+  this.ngOnInit();
+}
+
 
   async calificarTurno(turno: any) {
-    if (turno.estado !== 'realizado') {
-      alert('Solo puede calificar turnos realizados');
-      return;
-    }
-    const comentario = prompt('¿Cómo fue la atención?');
-    const calificacion = prompt('Puntualo del 1 al 5');
-    if (comentario && calificacion) {
-      await this.turnoService.actualizarTurno(turno.id, {
-        comentario_paciente: comentario,
-        calificacion: parseInt(calificacion, 10)
-      });
-      alert('Gracias por calificar');
-      this.ngOnInit();
-    }
+  if (turno.estado !== 'realizado') {
+    this.mostrarMensaje('Solo puede calificar turnos realizados', 'error');
+    return;
   }
+
+  const comentario = this.comentariosCalificacion[turno.id];
+  const calificacion = this.calificaciones[turno.id];
+  if (!comentario || comentario.trim() === '' || !calificacion || calificacion < 1 || calificacion > 5) {
+    this.mostrarMensaje('Debe ingresar comentario y calificación válida (1 a 5)', 'error');
+    return;
+  }
+
+  await this.turnoService.actualizarTurno(turno.id, {
+    comentario_paciente: comentario.trim(),
+    calificacion
+  });
+
+  this.mostrarMensaje('Gracias por calificar el turno', 'success');
+  this.comentariosCalificacion[turno.id] = '';
+  this.calificaciones[turno.id] = 0;
+  this.ngOnInit();
+}
 
   completarEncuesta(turno: any) {
-    if (turno.estado !== 'realizado' || !turno.resena) {
-      alert('No puede completar la encuesta aún.');
-      return;
-    }
-    alert('Componente Encuesta pendiente. Pronto se cargará aquí.');
+  if (turno.estado !== 'realizado' || !turno.resena) {
+    this.mostrarMensaje('No puede completar la encuesta aún', 'error');
+    return;
   }
+  this.mostrarMensaje('Componente Encuesta pendiente. Pronto se cargará aquí.', 'info');
+}
 
   verResena(turno: any) {
-    alert(`Reseña del especialista:\n${turno.resena}`);
-  }
+  this.mostrarMensaje(`Reseña del especialista:\n${turno.resena}`, 'info', 10);
+}
 }

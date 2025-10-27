@@ -66,7 +66,6 @@ export class RegisterEspecialistaComponent implements OnInit {
     this.errorImagen = '';
     this.errorEspecialidad = '';
 
-    // Validaciones obligatorias
     if (!this.selectedImage) {
       this.errorImagen = 'La imagen es obligatoria.';
       return;
@@ -81,7 +80,6 @@ export class RegisterEspecialistaComponent implements OnInit {
       return;
     }
 
-    // Registro de usuario
     const { data, error } = await this.auth.register(this.email, this.password);
     if (error) {
       console.error('Error al registrar usuario:', error.message);
@@ -94,7 +92,6 @@ export class RegisterEspecialistaComponent implements OnInit {
       return;
     }
 
-    // Subida de imagen
     let urlImagen = '';
     if (this.imagenFile) {
       const rutaImagen = `especialistas/${uid}.jpg`;
@@ -109,7 +106,6 @@ export class RegisterEspecialistaComponent implements OnInit {
       }
     }
 
-    // Insertar nueva especialidad si corresponde
     if (this.nuevaEspecialidad.trim() !== '') {
       const { data: nueva } = await this.supabase.client.from('especialidades').insert({ nombre: this.nuevaEspecialidad.trim() }).select().single();
       if (nueva) {
@@ -117,7 +113,6 @@ export class RegisterEspecialistaComponent implements OnInit {
       }
     }
 
-    // Insertar especialista
     await this.supabase.client.from('especialistas').insert({
       id: uid,
       nombre: this.nombre,
@@ -131,7 +126,6 @@ export class RegisterEspecialistaComponent implements OnInit {
       aprobado: false,
     });
 
-    // Vincular especialidades
     for (const espId of this.especialidadesSeleccionadas) {
       await this.supabase.client.from('especialista_especialidad').insert({
         especialista_id: uid,
@@ -143,4 +137,3 @@ export class RegisterEspecialistaComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 }
-``

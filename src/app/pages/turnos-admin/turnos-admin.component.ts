@@ -14,36 +14,29 @@ import { LoadingService } from '../../core/loading.service';
 })
 export class TurnosAdminComponent implements OnInit {
   turnos: any[] = [];
-  especialidades: string[] = [];
-  especialistas: any[] = [];
+  filtroTexto: string = '';
 
-  filtro = {
-    especialidad: '',
-    especialistaTexto: ''
-  };
+  mensaje: string | null = null;
+  tipoMensaje: 'error' | 'success' | 'info' | null = null;
 
   private filtroSubject = new Subject<void>();
 
-  constructor(private supabase: SupabaseService, private loading:LoadingService) {}
+  constructor(private supabase: SupabaseService, private loading: LoadingService) {}
 
   ngOnInit() {
     this.loading.show();
-    this.cargarEspecialidades();
-    this.cargarEspecialistas();
     this.cargarTurnos();
-
     this.filtroSubject.pipe(debounceTime(300)).subscribe(() => this.cargarTurnos());
     this.loading.hide();
   }
 
-  async cargarEspecialidades() {
-    const { data } = await this.supabase.client.from('especialidades').select('nombre');
-    this.especialidades = data ? data.map((e: any) => e.nombre) : [];
-  }
-
-  async cargarEspecialistas() {
-    const { data } = await this.supabase.client.from('especialistas').select('id, nombre, apellido');
-    this.especialistas = data || [];
+  mostrarMensaje(texto: string, tipo: 'error' | 'success' | 'info' = 'info', duracionSegundos = 5) {
+    this.mensaje = texto;
+    this.tipoMensaje = tipo;
+    setTimeout(() => {
+      this.mensaje = null;
+      this.tipoMensaje = null;
+    }, duracionSegundos * 1000);
   }
 
   async cargarTurnos() {
@@ -53,25 +46,26 @@ export class TurnosAdminComponent implements OnInit {
       especialistas(nombre, apellido)
     `);
 
-    if (this.filtro.especialidad.trim()) {
-      query = query.ilike('especialidad', `%${this.filtro.especialidad.trim()}%`);
-    }
+    const filtro = this.filtroTexto.trim().toLowerCase();
 
-    if (this.filtro.especialistaTexto.trim()) {
-      const { data, error } = await query.order('fecha', { ascending: true });
-      if (!error && data) {
-        this.turnos = data.filter(t => {
-          const nombreCompleto = `${t.especialistas?.nombre ?? ''} ${t.especialistas?.apellido ?? ''}`.toLowerCase();
-          return nombreCompleto.includes(this.filtro.especialistaTexto.trim().toLowerCase());
-        });
-      } else {
-        this.turnos = [];
-      }
+    const { data, error } = await query.order('fecha', { ascending: true });
+    if (error) {
+      this.turnos = [];
+      this.mostrarMensaje('Error al cargar turnos.', 'error');
+      console.error(error);
       return;
     }
 
-    const { data, error } = await query.order('fecha', { ascending: true });
-    this.turnos = !error && data ? data : [];
+    if (!filtro) {
+      this.turnos = data;
+      return;
+    }
+
+    this.turnos = data.filter(t => {
+      const especialidad = t.especialidad?.toLowerCase() ?? '';
+      const nombreCompleto = `${t.especialistas?.nombre ?? ''} ${t.especialistas?.apellido ?? ''}`.toLowerCase();
+      return especialidad.includes(filtro) || nombreCompleto.includes(filtro);
+    });
   }
 
   onFiltroChange() {
@@ -79,44 +73,43 @@ export class TurnosAdminComponent implements OnInit {
   }
 
   puedeCancelar(estado: string): boolean {
-    return !['aceptado', 'realizado', 'rechazado', 'cancelado'].includes(estado);
+    return !['aceptado', 'realizado', 'rechazado', 'cancelado'].includes(estado.toLowerCase());
   }
 
-  async cancelarTurno(id: string) {
-  const { data: turno, error: errorGet } = await this.supabase.client
-    .from('turnos')
-    .select('estado')
-    .eq('id', id)
-    .single();
+  async cancelarTurno(id: string, motivo: string) {
+    if (!motivo || motivo.trim() === '') {
+      this.mostrarMensaje('Debe ingresar un motivo para cancelar el turno.', 'error');
+      return;
+    }
 
-  if (errorGet || !turno) {
-    alert('No se pudo obtener el estado del turno.');
-    return;
+    const { data: turno, error: errorGet } = await this.supabase.client
+      .from('turnos')
+      .select('estado')
+      .eq('id', id)
+      .single();
+
+    if (errorGet || !turno) {
+      this.mostrarMensaje('No se pudo obtener el estado del turno.', 'error');
+      console.error(errorGet);
+      return;
+    }
+
+    if (['cancelado', 'realizado', 'rechazado'].includes(turno.estado.toLowerCase())) {
+      this.mostrarMensaje('Este turno ya no puede ser cancelado.', 'error');
+      return;
+    }
+
+    const { error } = await this.supabase.client
+      .from('turnos')
+      .update({ estado: 'cancelado', comentario_cancelacion: motivo.trim() })
+      .eq('id', id);
+
+    if (!error) {
+      this.mostrarMensaje('Turno cancelado correctamente.', 'success');
+      this.cargarTurnos();
+    } else {
+      this.mostrarMensaje('Error al cancelar turno.', 'error');
+      console.error(error);
+    }
   }
-
-  if (['cancelado', 'realizado', 'rechazado'].includes(turno.estado)) {
-    alert('Este turno ya no puede ser cancelado.');
-    return;
-  }
-
-  const motivo = prompt('Motivo de la cancelación:');
-  if (!motivo || motivo.trim() === '') {
-    alert('Debe ingresar un motivo.');
-    return;
-  }
-
-  const { error } = await this.supabase.client
-    .from('turnos')
-    .update({ estado: 'cancelado', comentario_cancelacion: motivo.trim() })
-    .eq('id', id);
-
-  if (!error) {
-    alert('Turno cancelado correctamente.');
-    this.cargarTurnos();
-  } else {
-    console.error(error);
-    alert('Error al cancelar turno: ' + error.message);
-  }
-}
-
 }

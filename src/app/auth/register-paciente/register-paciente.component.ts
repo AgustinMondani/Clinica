@@ -53,7 +53,6 @@ export class RegisterPacienteComponent implements OnInit {
   async registrar(form: NgForm) {
     this.errorGeneral = '';
 
-    // Validación obligatoria de imágenes
     if (!this.imagen1 || !this.imagen2) {
       this.errorGeneral = 'Debes subir ambas imágenes.';
       form.control.markAllAsTouched();
@@ -88,7 +87,6 @@ export class RegisterPacienteComponent implements OnInit {
       return;
     }
 
-    // Subida de imágenes
     let img1Url = '';
     let img2Url = '';
     try {

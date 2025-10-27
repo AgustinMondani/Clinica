@@ -1,69 +1,67 @@
 <div class="container">
   <h2>Mis Turnos</h2>
 
-  <!-- FILTROS -->
+  <div *ngIf="mensaje" class="mensaje" [ngClass]="{
+    'error': tipoMensaje === 'error',
+    'success': tipoMensaje === 'success',
+    'info': tipoMensaje === 'info'
+  }">
+    {{ mensaje }}
+  </div>
+
   <div class="row mb-3">
-    <!-- Filtro por texto -->
-    <div class="col-md-4 mb-2">
+    <div class="col-md-6 mb-2">
       <input
         type="text"
         class="form-control"
-        placeholder="Buscar por especialista, especialidad, historia clínica..."
+        placeholder="Buscar por especialista o especialidad"
         [(ngModel)]="filtro"
+        (input)="actualizarTurnosFiltrados()"
       />
     </div>
-
-    <!-- Filtro por fecha -->
-  <div class="col-md-3 mb-2">
-    <select class="form-control" [(ngModel)]="filtroFecha" (ngModelChange)="actualizarTurnosFiltrados()">
-      <option value="">Todas las fechas</option>
-      <option *ngFor="let fecha of fechasUnicas" [value]="fecha">{{ fecha | formatoFecha }}</option>
-    </select>
+    <div class="col-md-4 mb-2">
+      <input
+        type="date"
+        class="form-control"
+        [(ngModel)]="filtroFecha"
+        (ngModelChange)="actualizarTurnosFiltrados()"
+      />
+    </div>
+    <div class="col-md-2 mb-2">
+      <button class="btn btn-secondary w-100" (click)="limpiarFiltros()">Limpiar</button>
+    </div>
   </div>
 
-    <!-- Filtro por estado -->
-  <div class="col-md-3 mb-2">
-    <select class="form-control" [(ngModel)]="filtroEstado" (ngModelChange)="actualizarTurnosFiltrados()">
-      <option value="">Todos los estados</option>
-      <option value="pendiente">Pendiente</option>
-      <option value="realizado">Realizado</option>
-      <option value="cancelado">Cancelado</option>
-    </select>
-  </div>
-
-     <!-- Botón limpiar -->
-  <div class="col-md-2 mb-2">
-    <button class="btn btn-secondary w-100" (click)="limpiarFiltros()">Limpiar</button>
-  </div>
-</div>
-
-  <!-- LISTADO DE TURNOS -->
-<div *ngFor="let turno of turnosFiltrados | filtroTurnos:filtro:especialistasMap" class="card mb-3">
+  <div *ngFor="let turno of turnosFiltrados | filtroTurnos:filtro:especialistasMap" class="card mb-3">
     <div class="card-body">
       <h5 class="card-title">{{ turno.especialidad | titlecase }}</h5>
       <p class="card-text">
-        Especialista: {{ especialistasMap[turno.especialista_id].nombre }} {{ especialistasMap[turno.especialista_id].apellido }}
+        Especialista: {{ especialistasMap[turno.especialista_id]?.nombre }} {{ especialistasMap[turno.especialista_id]?.apellido }}
       </p>
       <p class="card-text">Fecha: {{ turno.fecha | formatoFecha }} - Horario: {{ turno.horario }}</p>
       <p><strong>Estado:</strong> {{ turno.estado | estadoTurno }}</p>
 
       <div class="d-flex gap-2 flex-wrap mt-3">
-        <button *ngIf="turno.estado !== 'realizado'" class="btn btn-danger btn-sm" (click)="cancelarTurno(turno)">
-          Cancelar Turno
-        </button>
 
-        <button *ngIf="turno.resena" class="btn btn-info btn-sm" (click)="verResena(turno)">
-          Ver Reseña
-        </button>
+        <div *ngIf="turno.estado === 'pendiente'" class="d-flex gap-1">
+          <input type="text" class="form-control form-control-sm" placeholder="Motivo cancelación" [(ngModel)]="comentariosCancelacion[turno.id]" />
+          <button class="btn btn-danger btn-sm" (click)="cancelarTurno(turno)">Cancelar Turno</button>
+        </div>
 
-        <button *ngIf="turno.estado === 'realizado' && turno.resena" class="btn btn-warning btn-sm"
-          (click)="completarEncuesta(turno)">
-          Completar Encuesta
-        </button>
+        <div *ngIf="turno.estado === 'cancelado'" class="alert alert-warning p-1 m-0">
+          Motivo de cancelación: {{ turno.comentario_paciente || 'No especificado' }}
+        </div>
 
-        <button *ngIf="turno.estado === 'realizado'" class="btn btn-success btn-sm" (click)="calificarTurno(turno)">
-          Calificar Atención
-        </button>
+        <button *ngIf="turno.resena" class="btn btn-info btn-sm" (click)="verResena(turno)">Ver Reseña</button>
+
+        <button *ngIf="turno.estado === 'realizado' && turno.resena" class="btn btn-warning btn-sm" (click)="completarEncuesta(turno)">Completar Encuesta</button>
+
+        <div *ngIf="turno.estado === 'realizado'" class="d-flex gap-1">
+          <input type="text" class="form-control form-control-sm" placeholder="Comentario" [(ngModel)]="comentariosCalificacion[turno.id]" />
+          <input type="number" class="form-control form-control-sm" min="1" max="5" placeholder="Calificación 1-5" [(ngModel)]="calificaciones[turno.id]" />
+          <button class="btn btn-success btn-sm" (click)="calificarTurno(turno)">Calificar Atención</button>
+        </div>
+
       </div>
     </div>
   </div>

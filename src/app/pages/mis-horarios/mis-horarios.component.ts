@@ -121,7 +121,6 @@ export class MisHorariosComponent implements OnInit {
       return;
     }
 
-    // ✅ Validación de rango por día
     for (const dia of this.nueva.dias) {
       if (!this.validarHorarioPorDia(dia, this.nueva.hora_desde, this.nueva.hora_hasta)) {
         this.mensajeError = `El horario del ${dia} está fuera del rango permitido.`;
@@ -129,7 +128,6 @@ export class MisHorariosComponent implements OnInit {
       }
     }
 
-    // ✅ Verificación de superposición
     for (let dia of this.nueva.dias) {
       const { data: existentes } = await this.supabase.client
         .from('horarios_especialistas')
@@ -143,7 +141,6 @@ export class MisHorariosComponent implements OnInit {
       }
     }
 
-    // ✅ Inserción si pasa todas las validaciones
     const horariosParaInsertar = this.nueva.dias.map((dia: string) => ({
       especialista_id: userId,
       especialidad: this.nueva.especialidad,
