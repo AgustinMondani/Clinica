@@ -19,7 +19,7 @@
         (input)="actualizarTurnosFiltrados()"
       />
     </div>
-    <div class="col-md-4 mb-2">
+    <!-- <div class="col-md-4 mb-2">
       <input
         type="date"
         class="form-control"
@@ -30,7 +30,7 @@
     <div class="col-md-2 mb-2">
       <button class="btn btn-secondary w-100" (click)="limpiarFiltros()">Limpiar</button>
     </div>
-  </div>
+  </div> -->
 
   <div *ngFor="let turno of turnosFiltrados | filtroTurnos:filtro:especialistasMap" class="card mb-3">
     <div class="card-body">

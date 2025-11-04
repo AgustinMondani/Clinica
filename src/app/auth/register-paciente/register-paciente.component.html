@@ -39,8 +39,17 @@
 
         <div class="col-md-6 mb-3">
           <label>Email</label>
-          <input type="email" class="form-control" [(ngModel)]="formData.email" name="email" #emailCtrl="ngModel" required email />
+          <input
+            type="email"
+            class="form-control"
+            [(ngModel)]="formData.email"
+            name="email"
+            #emailCtrl="ngModel"
+            required
+            email
+          />
           <div class="error" *ngIf="emailCtrl.invalid && emailCtrl.touched">El email debe ser válido.</div>
+          <div class="error" *ngIf="emailExistente">Este email ya está registrado. Por favor, inicia sesión.</div>
         </div>
 
         <div class="col-md-6 mb-3">
@@ -58,7 +67,7 @@
           <div class="error" *ngIf="!imagen1 && form.submitted">La imagen 1 es obligatoria.</div>
         </div>
 
-        <div class="col-md-6 mb-1">
+        <div class="col-md-6 mb-3">
           <label>Imagen 2</label>
           <input type="file" class="form-control" (change)="onFileSelected($event, 2)" accept="image/*" />
           <div class="error" *ngIf="!imagen2 && form.submitted">La imagen 2 es obligatoria.</div>
@@ -66,11 +75,21 @@
       </div>
 
       <div class="mb-1">
-        <input class="form-control" type="number" name="captcha" [(ngModel)]="captchaRespuesta" #captchaCtrl="ngModel" required appCaptcha />
-        <div class="error" *ngIf="captchaCtrl.invalid && captchaCtrl.touched">Por favor, resolvé el captcha correctamente.</div>
+        <input
+          class="form-control"
+          type="number"
+          name="captcha"
+          [(ngModel)]="captchaRespuesta"
+          #captchaCtrl="ngModel"
+          required
+          appCaptcha
+        />
+        <div class="error" *ngIf="captchaCtrl.invalid && captchaCtrl.touched">Por favor, resolve el captcha correctamente</div>
       </div>
 
-      <button class="btn btn-primary w-100" type="submit">Registrarse</button>
+      <div class="error text-center mt-2" *ngIf="errorGeneral">{{ errorGeneral }}</div>
+
+      <button class="btn btn-primary w-100 mt-3" type="submit">Registrarse</button>
     </form>
   </div>
 </div>

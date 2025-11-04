@@ -21,23 +21,19 @@ import { LoadingService } from '../../core/loading.service';
   styleUrls: ['./admin-estadisticas.component.scss']
 })
 export class AdminEstadisticasComponent implements OnInit {
-  // Datos
   datosEspecialidades: any[] = [];
   datosTurnosPorDia: any[] = [];
   datosTurnosPorMedico15Dias: any[] = [];
   logsIngresos: any[] = [];
 
-  // Gráfico de torta - Turnos por especialidad
   pieChartLabels: string[] = [];
   pieChartData: number[] = [];
   pieChartType: ChartType = 'pie';
 
-  // Gráfico de línea - Turnos por día
   lineChartLabels: string[] = [];
   lineChartData: any[] = [];
   lineChartType: ChartType = 'line';
 
-  // Gráfico de barras - Turnos por médico (últimos 15 días)
   barChartLabelsMedicosTurnos15Dias: string[] = [];
   barChartDataMedicosTurnos15Dias: any[] = [];
   datosMedicosTurnos15Dias: any[] = [];
@@ -56,6 +52,7 @@ export class AdminEstadisticasComponent implements OnInit {
     this.actualizarGraficoMedicos15Dias();
     this.actualizarGraficoTorta();
     this.actualizarGraficoLinea();
+
     this.loading.hide();
   }
 

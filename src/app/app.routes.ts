@@ -14,10 +14,12 @@ import { TurnosAdminComponent } from './pages/turnos-admin/turnos-admin.componen
 import { MiPerfilComponent } from './pages/mi-perfil/mi-perfil.component';
 import { PacientesEspecialistaComponent } from './pages/pacientes-especialista/pacientes-especialista.component';
 import { AdminEstadisticasComponent } from './pages/admin-estadisticas/admin-estadisticas.component';
+import { RegistrosComponent } from './pages/registros/registros.component';
 
 export const routes: Routes = [
   { path: '', component: BienvenidaComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'registros', component: RegistrosComponent},
   { path: 'registro-paciente', component: RegisterPacienteComponent },
   { path: 'registro-especialista', component: RegisterEspecialistaComponent },
   { path: 'registro-admin', component: RegisterAdminComponent },

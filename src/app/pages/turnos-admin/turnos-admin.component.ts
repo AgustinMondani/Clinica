@@ -25,9 +25,9 @@ export class TurnosAdminComponent implements OnInit {
 
   ngOnInit() {
     this.loading.show();
-    this.cargarTurnos();
+    this.cargarTurnos()
+      .finally(() => this.loading.hide());
     this.filtroSubject.pipe(debounceTime(300)).subscribe(() => this.cargarTurnos());
-    this.loading.hide();
   }
 
   mostrarMensaje(texto: string, tipo: 'error' | 'success' | 'info' = 'info', duracionSegundos = 5) {
@@ -40,32 +40,54 @@ export class TurnosAdminComponent implements OnInit {
   }
 
   async cargarTurnos() {
-    let query = this.supabase.client.from('turnos').select(`
-      *,
-      pacientes(nombre, apellido),
-      especialistas(nombre, apellido)
-    `);
+    try {
+      const filtro = this.filtroTexto.trim().toLowerCase();
 
-    const filtro = this.filtroTexto.trim().toLowerCase();
+      const { data, error } = await this.supabase.client
+        .from('turnos')
+        .select(`
+          *,
+          pacientes (nombre, apellido),
+          especialistas (nombre, apellido)
+        `)
+        .order('fecha', { ascending: true })
+        .order('horario', { ascending: true });
 
-    const { data, error } = await query.order('fecha', { ascending: true });
-    if (error) {
-      this.turnos = [];
-      this.mostrarMensaje('Error al cargar turnos.', 'error');
-      console.error(error);
-      return;
+      if (error) {
+        console.error(error);
+        this.mostrarMensaje('Error al cargar turnos.', 'error');
+        this.turnos = [];
+        return;
+      }
+
+      if (!data) {
+        this.turnos = [];
+        return;
+      }
+
+
+      const turnosConFecha = data.map(t => {
+        let fechaCompleta: Date | null = null;
+        if (t.fecha && t.horario) {
+
+          fechaCompleta = new Date(`${t.fecha}T${t.horario}`);
+        }
+        return { ...t, fechaCompleta };
+      });
+
+  
+      this.turnos = filtro
+        ? turnosConFecha.filter(t => {
+            const especialidad = t.especialidad?.toLowerCase() ?? '';
+            const nombreCompleto = `${t.especialistas?.nombre ?? ''} ${t.especialistas?.apellido ?? ''}`.toLowerCase();
+            return especialidad.includes(filtro) || nombreCompleto.includes(filtro);
+          })
+        : turnosConFecha;
+
+    } catch (e) {
+      console.error(e);
+      this.mostrarMensaje('Error inesperado al cargar los turnos.', 'error');
     }
-
-    if (!filtro) {
-      this.turnos = data;
-      return;
-    }
-
-    this.turnos = data.filter(t => {
-      const especialidad = t.especialidad?.toLowerCase() ?? '';
-      const nombreCompleto = `${t.especialistas?.nombre ?? ''} ${t.especialistas?.apellido ?? ''}`.toLowerCase();
-      return especialidad.includes(filtro) || nombreCompleto.includes(filtro);
-    });
   }
 
   onFiltroChange() {
@@ -73,7 +95,7 @@ export class TurnosAdminComponent implements OnInit {
   }
 
   puedeCancelar(estado: string): boolean {
-    return !['aceptado', 'realizado', 'rechazado', 'cancelado'].includes(estado.toLowerCase());
+    return !['aceptado', 'realizado', 'rechazado', 'cancelado'].includes(estado?.toLowerCase());
   }
 
   async cancelarTurno(id: string, motivo: string) {
@@ -82,34 +104,43 @@ export class TurnosAdminComponent implements OnInit {
       return;
     }
 
-    const { data: turno, error: errorGet } = await this.supabase.client
-      .from('turnos')
-      .select('estado')
-      .eq('id', id)
-      .single();
+    try {
+      const { data: turno, error: errorGet } = await this.supabase.client
+        .from('turnos')
+        .select('estado')
+        .eq('id', id)
+        .single();
 
-    if (errorGet || !turno) {
-      this.mostrarMensaje('No se pudo obtener el estado del turno.', 'error');
-      console.error(errorGet);
-      return;
-    }
+      if (errorGet || !turno) {
+        console.error(errorGet);
+        this.mostrarMensaje('No se pudo obtener el estado del turno.', 'error');
+        return;
+      }
 
-    if (['cancelado', 'realizado', 'rechazado'].includes(turno.estado.toLowerCase())) {
-      this.mostrarMensaje('Este turno ya no puede ser cancelado.', 'error');
-      return;
-    }
+      if (['cancelado', 'realizado', 'rechazado'].includes(turno.estado.toLowerCase())) {
+        this.mostrarMensaje('Este turno ya no puede ser cancelado.', 'error');
+        return;
+      }
 
-    const { error } = await this.supabase.client
-      .from('turnos')
-      .update({ estado: 'cancelado', comentario_cancelacion: motivo.trim() })
-      .eq('id', id);
+      const { error } = await this.supabase.client
+        .from('turnos')
+        .update({
+          estado: 'cancelado',
+          comentario_cancelacion: motivo.trim()
+        })
+        .eq('id', id);
 
-    if (!error) {
+      if (error) {
+        console.error(error);
+        this.mostrarMensaje('Error al cancelar turno.', 'error');
+        return;
+      }
+
       this.mostrarMensaje('Turno cancelado correctamente.', 'success');
       this.cargarTurnos();
-    } else {
-      this.mostrarMensaje('Error al cancelar turno.', 'error');
-      console.error(error);
+    } catch (e) {
+      console.error(e);
+      this.mostrarMensaje('Error inesperado al cancelar el turno.', 'error');
     }
   }
 }

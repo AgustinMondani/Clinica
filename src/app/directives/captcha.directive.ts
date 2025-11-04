@@ -25,7 +25,6 @@ export class CaptchaDirective implements OnInit {
 
     this.renderer.insertBefore(this.el.nativeElement.parentNode, this.imagenElement, this.el.nativeElement);
 
-    // Botón
     this.botonRegenerar = this.renderer.createElement('button');
     this.renderer.setProperty(this.botonRegenerar, 'type', 'button');
     this.renderer.setStyle(this.botonRegenerar, 'marginLeft', '10px');
@@ -33,6 +32,7 @@ export class CaptchaDirective implements OnInit {
     this.renderer.listen(this.botonRegenerar, 'click', () => {
       this.regenerar();
     });
+    
     this.renderer.insertBefore(this.el.nativeElement.parentNode, this.botonRegenerar, this.el.nativeElement);
 
     this.mensajeElement = this.renderer.createElement('div');

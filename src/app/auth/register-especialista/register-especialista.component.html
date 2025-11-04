@@ -2,24 +2,25 @@
   <div class="login-card">
     <h2 class="text-center mb-4">Registro Especialista</h2>
 
+    <div *ngIf="errorGeneral" class="alert alert-danger text-center mb-3">
+      {{ errorGeneral }}
+    </div>
+
     <form (ngSubmit)="registrarEspecialista(form)" #form="ngForm" novalidate>
       <div class="row">
 
-        <!-- Nombre -->
         <div class="col-md-6 mb-3">
           <label>Nombre</label>
           <input class="form-control" [(ngModel)]="nombre" name="nombre" #nombreCtrl="ngModel" required />
           <div class="error" *ngIf="nombreCtrl.invalid && nombreCtrl.touched">El nombre es obligatorio.</div>
         </div>
 
-        <!-- Apellido -->
         <div class="col-md-6 mb-3">
           <label>Apellido</label>
           <input class="form-control" [(ngModel)]="apellido" name="apellido" #apellidoCtrl="ngModel" required />
           <div class="error" *ngIf="apellidoCtrl.invalid && apellidoCtrl.touched">El apellido es obligatorio.</div>
         </div>
 
-        <!-- Edad -->
         <div class="col-md-6 mb-3">
           <label>Edad</label>
           <input type="number" class="form-control" [(ngModel)]="edad" name="edad" #edadCtrl="ngModel" required min="18" max="120" />
@@ -30,17 +31,15 @@
           </div>
         </div>
 
-        <!-- DNI -->
         <div class="col-md-6 mb-3">
           <label>DNI</label>
           <input class="form-control" [(ngModel)]="dni" name="dni" #dniCtrl="ngModel" required pattern="^[0-9]{7,8}$" />
           <div class="error" *ngIf="dniCtrl.invalid && dniCtrl.touched">
             <ng-container *ngIf="dniCtrl.errors?.['required']">El DNI es obligatorio.</ng-container>
-            <ng-container *ngIf="dniCtrl.errors?.['pattern']">El DNI debe tener entre 7 y 8 números.</ng-container>
+            <ng-container *ngIf="dniCtrl.errors?.['pattern']">Debe tener entre 7 y 8 números.</ng-container>
           </div>
         </div>
 
-        <!-- Email -->
         <div class="col-md-6 mb-3">
           <label>Email</label>
           <input type="email" class="form-control" [(ngModel)]="email" name="email" #emailCtrl="ngModel" required email />
@@ -50,7 +49,6 @@
           </div>
         </div>
 
-        <!-- Contraseña -->
         <div class="col-md-6 mb-3">
           <label>Contraseña</label>
           <input type="password" class="form-control" [(ngModel)]="password" name="password" #passCtrl="ngModel" required minlength="6" />
@@ -60,27 +58,39 @@
           </div>
         </div>
 
-        <!-- Imagen -->
         <div class="col-md-6 mb-3">
           <label>Imagen de perfil</label>
           <input type="file" class="form-control" (change)="manejarImagen($event)" accept="image/*" />
           <div class="error" *ngIf="errorImagen">{{ errorImagen }}</div>
         </div>
 
-        <!-- Especialidades -->
-         <label>Seleccioná especialidades:</label>
-        <div class="col-18 mb-6">
+        <div class="col-12 mb-3">
+          <label>Seleccioná especialidades:</label>
           <div *ngFor="let esp of especialidades" class="form-check form-check-inline">
-            <input type="checkbox" [value]="esp.id" (change)="toggleEspecialidad(esp.id)"
-              [checked]="especialidadesSeleccionadas.includes(esp.id)" id="esp-{{ esp.id }}" class="form-check-input" />
+            <input
+              type="checkbox"
+              [value]="esp.id"
+              (change)="toggleEspecialidad(esp.id)"
+              [checked]="especialidadesSeleccionadas.includes(esp.id)"
+              id="esp-{{ esp.id }}"
+              class="form-check-input"
+            />
             <label class="form-check-label me-3" for="esp-{{ esp.id }}">{{ esp.nombre }}</label>
           </div>
           <div class="error" *ngIf="errorEspecialidad">{{ errorEspecialidad }}</div>
         </div>
-        
+
         <div class="col-12 mt-3 mb-4">
-          <label>Agregar nueva especialidad (opcional):</label>
-          <input class="form-control" [(ngModel)]="nuevaEspecialidad" name="nuevaEspecialidad" />
+          <label>Agregar nueva especialidad:</label>
+          <div class="input-group">
+            <input
+              class="form-control"
+              [(ngModel)]="nuevaEspecialidad"
+              name="nuevaEspecialidad"
+              placeholder="Ej: Dermatología"
+            />
+            <button type="button" class="btn btn-success" (click)="agregarNuevaEspecialidad()">➕ Agregar</button>
+          </div>
         </div>
 
       </div>

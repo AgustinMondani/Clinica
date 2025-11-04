@@ -43,64 +43,71 @@ export class LoginComponent {
   }
 
   async login() {
-  if (!this.validarCampos()) return;
+    if (!this.validarCampos()) return;
 
-  const { data, error } = await this.supabase.client.auth.signInWithPassword({
-    email: this.email,
-    password: this.password,
-  });
+    const { data, error } = await this.supabase.client.auth.signInWithPassword({
+      email: this.email,
+      password: this.password,
+    });
 
-  if (error) {
-    this.errorGeneral = 'Error al iniciar sesión, debes confirmar tu mail';
-    return;
-  }
-
-  try {
-    await this.supabase.client
-      .from('logs_ingresos')
-      .insert([{ usuario: this.email }]);
-  } catch (e) {
-    console.error('Error registrando log de ingreso:', e);
-  }
-
-  const userId = data.user.id;
-
-  const admin = await this.supabase.client.from('administradores').select('*').eq('id', userId).maybeSingle();
-  if (admin.data) {
-    this.router.navigate(['/mi-perfil']);
-    return;
-  }
-
-  const especialista = await this.supabase.client.from('especialistas').select('*').eq('id', userId).maybeSingle();
-  if (especialista.data) {
-    if (!data.user.email_confirmed_at) {
-      this.errorGeneral = 'Debes confirmar tu email.';
+    if (error) {
+      if (error.message.includes('Invalid login credentials')) {
+        this.errorGeneral = 'Credenciales incorrectas';
+      } else if (error.message.includes('Email not confirmed')) {
+        this.errorGeneral = 'Debes confirmar tu correo antes de iniciar sesión.';
+      } else {
+        this.errorGeneral = 'Error al iniciar sesión. Intentalo nuevamente.';
+      }
       return;
     }
-    if (!especialista.data.aprobado) {
-      this.errorGeneral = 'Tu cuenta aún no fue aprobada por el administrador.';
+
+    try {
+      await this.supabase.client
+        .from('logs_ingresos')
+        .insert([{ usuario: this.email }]);
+    } catch (e) {
+      console.warn('No se pudo registrar el log de ingreso:', e);
+    }
+
+    const user = data.user;
+    const userId = user.id;
+
+    if (!user.email_confirmed_at) {
+      this.errorGeneral = 'Debes confirmar tu correo antes de ingresar.';
       return;
     }
-    this.router.navigate(['/mi-perfil']);
-    return;
-  }
 
-  const paciente = await this.supabase.client.from('pacientes').select('*').eq('id', userId).maybeSingle();
-  if (paciente.data) {
-    if (!data.user.email_confirmed_at) {
-      this.errorGeneral = 'Debes confirmar tu email.';
+    const [admin, especialista, paciente] = await Promise.all([
+      this.supabase.client.from('administradores').select('*').eq('id', userId).maybeSingle(),
+      this.supabase.client.from('especialistas').select('*').eq('id', userId).maybeSingle(),
+      this.supabase.client.from('pacientes').select('*').eq('id', userId).maybeSingle(),
+    ]);
+
+    if (admin.data) {
+      this.router.navigate(['/mi-perfil']);
       return;
     }
-    this.router.navigate(['/mi-perfil']);
-    return;
+
+    if (especialista.data) {
+      if (!especialista.data.aprobado) {
+        this.errorGeneral = 'Tu cuenta aún no fue aprobada por el administrador.';
+        return;
+      }
+      this.router.navigate(['/mi-perfil']);
+      return;
+    }
+
+
+    if (paciente.data) {
+      this.router.navigate(['/mi-perfil']);
+      return;
+    }
+
+    this.errorGeneral = 'No se encontró un rol válido asociado a tu cuenta.';
   }
-
-  this.errorGeneral = 'No se encontró un rol válido asociado a tu cuenta.';
-}
-
 
   preloadUser(userType: string) {
-    switch(userType) {
+    switch (userType) {
       case 'paciente1':
         this.email = 'lupapa@yopmail.com';
         this.password = '12345678';

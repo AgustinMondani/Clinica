@@ -40,7 +40,7 @@ export class NavbarComponent {
   }
 
   showLogout(): boolean {
-    return !(this.currentRoute == '/' || this.currentRoute == '/login' || this.currentRoute == '/registro-especialista' || this.currentRoute == '/registro-paciente');
+    return !(this.currentRoute == '/' || this.currentRoute == '/login' || this.currentRoute == '/registro-especialista' || this.currentRoute == '/registro-paciente' || this.currentRoute == '/registros');
   };
   
   showNav(): boolean {

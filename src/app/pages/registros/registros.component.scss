@@ -1,0 +1,60 @@
+.contenedor {
+  margin-top: 70px;            
+  display: flex;
+  flex-direction: column;    
+  height: calc(100vh - 70px);   
+  width: 100vw;
+  overflow: hidden;
+  background-color: #fafafa;
+}
+
+.opcion {
+  position: relative;
+  flex: 1;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  background-color: #e0e0e0;
+}
+
+.opcion img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
+  transition: transform 0.6s ease;
+  filter: brightness(0.8);
+}
+
+.opcion:hover img {
+  transform: scale(1.05);
+  filter: brightness(1);
+}
+
+.opcion::after {
+  content: attr(alt);
+  position: absolute;
+  color: white;
+  font-size: 2rem;
+  font-weight: 600;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  letter-spacing: 1px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.opcion:hover::after {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .opcion::after {
+    font-size: 1.5rem;
+  }
+  .opcion img {
+    object-position: center;
+  }
+}

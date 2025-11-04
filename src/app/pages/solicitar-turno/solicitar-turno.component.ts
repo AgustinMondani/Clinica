@@ -26,7 +26,7 @@ export class SolicitarTurnoComponent implements OnInit {
   pacientes: any[] = [];
   pacienteSeleccionado: string | null = null;
 
-  horariosPorDia: { [dia: string]: { desde: string; hasta: string }[] } = {};
+  horariosPorDia: { [dia: string]: { desde: string; hasta: string; duracion: number }[] } = {};
 
   mensaje: string | null = null;
   tipoMensaje: 'error' | 'success' | 'info' | null = null;
@@ -93,12 +93,23 @@ export class SolicitarTurnoComponent implements OnInit {
     }
   }
 
+  private timeStringToDate(fecha: Date, timeStr: string) {
+    const [h, m] = timeStr.split(':').map(Number);
+    const d = new Date(fecha);
+    d.setHours(h, m, 0, 0);
+    return d;
+  }
+
+  private minDate(a: Date, b: Date) {
+    return a.getTime() <= b.getTime() ? a : b;
+  }
+
   async cargarHorariosEspecialista() {
     if (!this.especialistaSeleccionado || !this.especialidadSeleccionada) return;
 
     const { data, error } = await this.supabase.client
       .from('horarios_especialistas')
-      .select('dia, desde, hasta')
+      .select('dia, desde, hasta, duracion')
       .eq('especialista_id', this.especialistaSeleccionado.id)
       .eq('especialidad', this.especialidadSeleccionada.toLowerCase());
 
@@ -111,7 +122,10 @@ export class SolicitarTurnoComponent implements OnInit {
     for (const item of data || []) {
       const dia = item.dia.toLowerCase();
       if (!this.horariosPorDia[dia]) this.horariosPorDia[dia] = [];
-      this.horariosPorDia[dia].push({ desde: item.desde, hasta: item.hasta });
+      const duracionMin = item.duracion != null ? Number(item.duracion) : 30;
+      const desde = (item.desde || '').toString().substring(0,5);
+      const hasta = (item.hasta || '').toString().substring(0,5);
+      this.horariosPorDia[dia].push({ desde, hasta, duracion: duracionMin });
     }
   }
 
@@ -125,7 +139,7 @@ export class SolicitarTurnoComponent implements OnInit {
 
       const diaTexto = this.getDiaTexto(fecha.getDay()).toLowerCase();
 
-      if (this.horariosPorDia[diaTexto]) {
+      if (this.horariosPorDia[diaTexto] && this.horariosPorDia[diaTexto].length > 0) {
         const year = fecha.getFullYear();
         const month = String(fecha.getMonth() + 1).padStart(2, '0');
         const day = String(fecha.getDate()).padStart(2, '0');
@@ -157,40 +171,49 @@ export class SolicitarTurnoComponent implements OnInit {
       return;
     }
 
+ 
     const { data: turnosReservados, error } = await this.supabase.client
       .from('turnos')
-      .select('horario')
+      .select('horario, estado')
       .eq('especialista_id', this.especialistaSeleccionado.id)
-      .eq('fecha', fecha);
+      .eq('fecha', fecha)
+      .neq('estado', 'cancelado'); 
 
     if (error) {
       console.error('[seleccionarFecha] Error al obtener turnos reservados:', error);
       return;
     }
 
-    const horariosOcupados = (turnosReservados || []).map(t => t.horario?.trim().substring(0, 5));
+    const horariosOcupados = (turnosReservados || []).map((t: any) => t.horario?.trim().substring(0, 5));
 
-    const intervaloMinutos = 30;
+    const dayNum = fechaLocal.getDay();
+    let cierreClinicaStr = '19:00';
+    if (dayNum === 6) cierreClinicaStr = '14:00';
+    else if (dayNum === 0) cierreClinicaStr = '19:00';
+
+    const cierreClinicaDate = this.timeStringToDate(fechaLocal, cierreClinicaStr);
+
     let posiblesHorarios: { hora: string; ocupado: boolean }[] = [];
 
     for (const rango of horariosDelDia) {
-      const [desdeHora, desdeMin] = rango.desde.split(':').map(Number);
-      const [hastaHora, hastaMin] = rango.hasta.split(':').map(Number);
+      const desdeDate = this.timeStringToDate(fechaLocal, rango.desde);
+      const hastaDate = this.timeStringToDate(fechaLocal, rango.hasta);
+      const limiteFinal = this.minDate(hastaDate, cierreClinicaDate);
+      if (limiteFinal.getTime() <= desdeDate.getTime()) continue;
 
-      const desde = new Date(fecha);
-      desde.setHours(desdeHora, desdeMin, 0, 0);
+      let actual = new Date(desdeDate);
+      const duracionMs = rango.duracion * 60 * 1000;
 
-      const hasta = new Date(fecha);
-      hasta.setHours(hastaHora, hastaMin, 0, 0);
-
-      let actual = new Date(desde);
-      while (actual < hasta) {
+      while ((actual.getTime() + duracionMs) <= limiteFinal.getTime()) {
         const horaStr = actual.toTimeString().substring(0, 5);
-        posiblesHorarios.push({ hora: horaStr, ocupado: horariosOcupados.includes(horaStr) });
-        actual = new Date(actual.getTime() + intervaloMinutos * 60000);
+        if (!posiblesHorarios.some(h => h.hora === horaStr)) {
+          posiblesHorarios.push({ hora: horaStr, ocupado: horariosOcupados.includes(horaStr) });
+        }
+        actual = new Date(actual.getTime() + duracionMs);
       }
     }
 
+    posiblesHorarios.sort((a, b) => a.hora.localeCompare(b.hora));
     this.horariosDisponibles = posiblesHorarios;
   }
 
@@ -223,7 +246,8 @@ export class SolicitarTurnoComponent implements OnInit {
       .select('*')
       .eq('especialista_id', this.especialistaSeleccionado.id)
       .eq('fecha', this.fechaSeleccionada)
-      .eq('horario', this.horarioSeleccionado);
+      .eq('horario', this.horarioSeleccionado)
+      .neq('estado', 'cancelado');
 
     if (errorVerificacion) {
       console.error('[confirmarTurno] Error al verificar duplicados:', errorVerificacion);
@@ -241,7 +265,8 @@ export class SolicitarTurnoComponent implements OnInit {
       especialidad: this.especialidadSeleccionada,
       fecha: this.fechaSeleccionada,
       horario: this.horarioSeleccionado,
-      paciente_id: pacienteId
+      paciente_id: pacienteId,
+      estado: 'pendiente' 
     });
 
     if (error) {
@@ -263,4 +288,5 @@ export class SolicitarTurnoComponent implements OnInit {
     this.horariosPorDia = {};
     this.pacienteSeleccionado = null;
   }
+  
 }

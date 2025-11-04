@@ -14,11 +14,14 @@ export class MisHorariosComponent implements OnInit {
   especialidades: string[] = [];
   diasSemana = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
 
+  duracionesTurno = [30, 45, 60];
+
   nueva: any = {
     especialidad: '',
     dias: [] as string[],
     hora_desde: '',
     hora_hasta: '',
+    duracion: null,
   };
 
   horarios: any[] = [];
@@ -40,7 +43,7 @@ export class MisHorariosComponent implements OnInit {
     if (error) console.error('Error al obtener especialidades:', error);
 
     this.especialidades = data?.map((e: any) => e.especialidad.nombre) || [];
-    this.generarHorasDisponibles('lunes'); // Por defecto
+    this.generarHorasDisponibles('lunes');
     await this.cargarHorarios();
   }
 
@@ -71,21 +74,24 @@ export class MisHorariosComponent implements OnInit {
   }
 
   generarHorasDisponibles(dia: string) {
-    let inicio = 8;
-    let fin = dia === 'sabado' ? 14 : 19;
-    const horas: string[] = [];
+  let inicio = 8;
+  let fin = dia === 'sabado' ? 14 : 19;
+  const horas: string[] = [];
 
-    for (let h = inicio; h <= fin; h++) {
-      for (let m of [0, 15, 30, 45]) {
-        if (h === fin && m > 0) continue;
-        const hh = h.toString().padStart(2, '0');
-        const mm = m.toString().padStart(2, '0');
-        horas.push(`${hh}:${mm}`);
-      }
-    }
+  if (!this.nueva.duracion) return; 
 
-    this.horasDisponibles = horas;
+  const intervalo = this.nueva.duracion / 60; // convertir a horas
+  let horaActual = inicio;
+
+  while (horaActual < fin) {
+    const hh = Math.floor(horaActual).toString().padStart(2, '0');
+    const mm = Math.round((horaActual % 1) * 60).toString().padStart(2, '0');
+    horas.push(`${hh}:${mm}`);
+    horaActual += intervalo;
   }
+
+  this.horasDisponibles = horas;
+}
 
   seSuperpone(nuevoDesde: string, nuevoHasta: string, existentes: any[]): boolean {
     return existentes.some((h) => {
@@ -113,6 +119,11 @@ export class MisHorariosComponent implements OnInit {
 
     if (!this.nueva.especialidad || this.nueva.dias.length === 0) {
       this.mensajeError = 'Debe seleccionar al menos una especialidad y un día.';
+      return;
+    }
+
+    if (!this.nueva.duracion) {
+      this.mensajeError = 'Debe seleccionar la duración del turno.';
       return;
     }
 
@@ -147,6 +158,7 @@ export class MisHorariosComponent implements OnInit {
       dia,
       desde: this.nueva.hora_desde,
       hasta: this.nueva.hora_hasta,
+      duracion: this.nueva.duracion,
     }));
 
     const { error } = await this.supabase.client
@@ -158,7 +170,7 @@ export class MisHorariosComponent implements OnInit {
       return;
     }
 
-    this.nueva = { especialidad: '', dias: [], hora_desde: '', hora_hasta: '' };
+    this.nueva = { especialidad: '', dias: [], hora_desde: '', hora_hasta: '', duracion: null };
     await this.cargarHorarios();
   }
 
@@ -166,4 +178,10 @@ export class MisHorariosComponent implements OnInit {
     await this.supabase.client.from('horarios_especialistas').delete().eq('id', id);
     await this.cargarHorarios();
   }
+
+  onDuracionChange() {
+  if (this.nueva.dias.length > 0) {
+    this.generarHorasDisponibles(this.nueva.dias[0]);
+  }
+}
 }

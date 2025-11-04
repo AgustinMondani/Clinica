@@ -34,7 +34,7 @@ section h3 {
 canvas {
   display: block;
   max-width: 100%;
-  height: 280px !important; /* altura fija para que no sean muy grandes */
+  height: 280px !important; 
   margin: 0 auto;
 }
 
@@ -90,7 +90,6 @@ button:hover {
   background-color: #1b4f72;
 }
 
-/* Responsivo para pantallas pequeñas */
 @media (max-width: 720px) {
   :host {
     padding: 1rem;

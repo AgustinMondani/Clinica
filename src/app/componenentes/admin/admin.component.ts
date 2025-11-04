@@ -83,7 +83,6 @@ async exportarUsuariosExcel() {
 
   const usuarios = [...(pacientes.data || []), ...(especialistas.data || [])];
 
-  // Exportar
   const worksheet = XLSX.utils.json_to_sheet(usuarios);
   const workbook = { Sheets: { 'Usuarios': worksheet }, SheetNames: ['Usuarios'] };
   const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });

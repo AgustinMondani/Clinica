@@ -30,6 +30,7 @@ export class RegisterPacienteComponent implements OnInit {
   captchaImagen: string = '';
 
   errorGeneral: string = '';
+  emailExistente = false;
 
   constructor(
     private supabase: SupabaseService,
@@ -52,6 +53,7 @@ export class RegisterPacienteComponent implements OnInit {
 
   async registrar(form: NgForm) {
     this.errorGeneral = '';
+    this.emailExistente = false;
 
     if (!this.imagen1 || !this.imagen2) {
       this.errorGeneral = 'Debes subir ambas imágenes.';
@@ -77,8 +79,13 @@ export class RegisterPacienteComponent implements OnInit {
     });
 
     if (error) {
-      this.errorGeneral = 'Error al registrar usuario: ' + error.message;
-      return;
+      if (error.message.includes('User already registered')) {
+        this.emailExistente = true; 
+        return;
+      } else {
+        this.errorGeneral = 'Error al registrar usuario: ' + error.message;
+        return;
+      }
     }
 
     const userId = data.user?.id;
@@ -103,7 +110,7 @@ export class RegisterPacienteComponent implements OnInit {
       return;
     }
 
-    await this.supabase.client.from('pacientes').insert({
+    const { error: insertError } = await this.supabase.client.from('pacientes').insert({
       id: userId,
       nombre: this.formData.nombre,
       apellido: this.formData.apellido,
@@ -114,6 +121,19 @@ export class RegisterPacienteComponent implements OnInit {
       imagen1: img1Url,
       imagen2: img2Url
     });
+
+    if (insertError) {
+      if (
+        insertError.message.includes('duplicate key value') ||
+        insertError.message.includes('pacientes_email_key')
+      ) {
+        this.emailExistente = true;
+        return;
+      }
+
+      this.errorGeneral = 'Error al guardar los datos del paciente.';
+      return;
+    }
 
     this.router.navigate(['/login']);
   }

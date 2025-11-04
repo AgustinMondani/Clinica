@@ -1,11 +1,37 @@
-<div class="bienvenida-container">
-  <div class="contenido text-center">
-    <h1 class="titulo">Bienvenido a Clínica Online</h1>
 
-    <div class="botones">
-      <a routerLink="/login" class="btn-generico">Iniciar Sesión</a>
-      <a routerLink="/registro-paciente" class="btn-imagen paciente"></a>
-      <a routerLink="/registro-especialista" class="btn-imagen especialista"></a>
+ <div class="bienvenida-container">
+  <div class="overlay"></div>
+
+  <div class="contenido">
+    <div class="info">
+      <h1 class="titulo">Clínica Mondani</h1>
+      <p class="descripcion">
+        Cuidamos tu salud con tecnología, compromiso y calidez humana.  
+        Turnos online, seguimiento personalizado y atención profesional.
+      </p>
+
+      <div class="bloques">
+        <div class="bloque">
+          <h3>Especialidades</h3>
+          <p>Clínica Médica • Pediatría • Cardiología • Dermatología • Nutrición • Psicología</p>
+        </div>
+
+        <div class="bloque">
+          <h3>Horarios de Atención</h3>
+          <p>Lunes a Viernes: 8:00 a 19:00 hs<br>Sábados: 9:00 a 14:00 hs</p>
+        </div>
+      </div>
+
+      <div class="acciones">
+        <a routerLink="/login" class="btn-generico">Iniciar Sesión</a>
+        <a routerLink="/registros" class="btn-generico registro">Registrarse</a>
+      </div>
     </div>
+
+    <div class="slider">
+    <div class="slide" *ngFor="let imagen of imagenes; let i = index" [class.active]="i === slideActivo">
+      <img [src]="imagen" alt="Imagen clínica" />
+    </div>
+  </div>
   </div>
 </div>

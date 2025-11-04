@@ -1,8 +1,8 @@
-/* === Estilos generales === */
+
 body {
   margin: 0;
   padding: 0;
-  background: #f3f4f6; /* fondo gris suave */
+  background: #f3f4f6;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
   justify-content: center;
@@ -10,29 +10,27 @@ body {
   min-height: 100vh;
 }
 
-/* === Contenedor principal === */
 .login-container {
-  margin-top: 75px; /* separación desde el top */
+  margin-top: 75px;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: flex-start;
 }
 
-/* === Tarjeta de registro === */
 .login-card {
   background-color: #fff;
   padding: 40px;
   border-radius: 15px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   width: 90%;
-  max-width: 900px; /* ideal para 1080p */
+  max-width: 900px; 
   box-sizing: border-box;
   overflow-y: auto;
-  max-height: calc(100vh - 100px); /* evita que se salga de pantalla */
+  max-height: calc(100vh - 100px); 
 }
 
-/* === Título === */
+
 .login-card h2 {
   text-align: center;
   margin-bottom: 25px;
@@ -41,7 +39,7 @@ body {
   color: #0f0fff;
 }
 
-/* === Campos del formulario === */
+
 .form-control {
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -55,14 +53,14 @@ body {
   box-shadow: 0 0 4px rgba(25, 135, 84, 0.3);
 }
 
-/* === Etiquetas === */
+
 label {
   font-weight: 500;
   color: #333;
   font-size: larger;
 }
 
-/* === Botón === */
+
 button.btn-success {
   background-color: #198754;
   border: none;
@@ -76,14 +74,13 @@ button.btn-success:hover {
   background-color: #157347;
 }
 
-/* === Errores === */
+
 .error {
   color: #dc3545;
   font-size: 13px;
   margin-top: 5px;
 }
 
-/* === Responsividad === */
 @media (max-width: 768px) {
   .login-card {
     padding: 25px;

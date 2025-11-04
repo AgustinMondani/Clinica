@@ -37,7 +37,7 @@
 
     <tbody>
       <tr *ngFor="let t of turnos">
-        <td>{{ t.fecha | date: 'short' }}</td>
+        <td>{{ t.fechaCompleta | date: 'dd/MM/yyyy, HH:mm' }}</td>
         <td>{{ t.pacientes?.nombre }} {{ t.pacientes?.apellido }}</td>
         <td>{{ t.especialidad | titlecase }}</td>
         <td>{{ t.especialistas?.nombre }} {{ t.especialistas?.apellido }}</td>

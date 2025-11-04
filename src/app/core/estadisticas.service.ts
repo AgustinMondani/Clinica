@@ -45,7 +45,6 @@ export class EstadisticasService {
 
   if (error || !turnos) return [];
 
-  // Agrupar por especialista_id
   const conteo: { [id: string]: number } = {};
   turnos.forEach(t => {
     if (t.especialista_id) {

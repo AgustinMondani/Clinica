@@ -25,6 +25,7 @@ export class MiPerfilComponent implements OnInit {
   constructor(private supabase: SupabaseService, private router: Router, private historiaService: HistoriaClinicaService, private loading: LoadingService) {}
 
   async ngOnInit() {
+
     this.loading.show();
     const user = await this.supabase.getUsuarioActual();
     this.usuario = user;
@@ -121,7 +122,6 @@ export class MiPerfilComponent implements OnInit {
   styles: { fontSize: 10 }
 });
 
-// 👇 Posición final real de la tabla
 posY = (doc as any).lastAutoTable.finalY + 10;
     });
 
