@@ -90,26 +90,4 @@ Permite a los pacientes solicitar turnos, a los especialistas gestionarlos, y a 
 
 ## 🖼️ Imágenes de las distintas pantallas
 
-### 🔑 Inicio de sesión:
-<img width="2006" height="923" alt="image" src="https://github.com/user-attachments/assets/98bd2409-d4bb-4691-982b-67e450c81339" />
-
-### 🏠 Bienvenida:
-<img width="1932" height="923" alt="image" src="https://github.com/user-attachments/assets/20707374-4a11-425f-b09b-e84cae2d34eb" />
-
-### 🧾 Formulario de registro:
-<img width="951" height="837" alt="image" src="https://github.com/user-attachments/assets/3d93343a-82d1-4d42-af9c-54d138bac1ad" />
-
-### 👤 Mi perfil:
-<img width="1920" height="922" alt="image" src="https://github.com/user-attachments/assets/19dee104-9198-411e-a97c-18c92f20e9a6" />
-
----
-
-## ✨ ALUMNO
-
-**Agustín Mondani**  
-💻 Técnico en Programación — UTN  
-📍 Proyecto final de Laboratorio IV  
-📅 2025
-
----
 
