@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
+import { LoadingService } from '../../core/loading.service';
 
 @Component({
   selector: 'app-admin',
@@ -24,12 +25,15 @@ export class AdminComponent implements OnInit {
   constructor(
     private supabase: SupabaseService,
     private historiaService: HistoriaClinicaService,
-    private router: Router
+    private router: Router,
+    private loading: LoadingService
   ) {}
 
   async ngOnInit() {
+    this.loading.show();
     await this.cargarEspecialistas();
     await this.cargarPacientes();
+    this.loading.hide();
   }
 
   async cargarEspecialistas() {

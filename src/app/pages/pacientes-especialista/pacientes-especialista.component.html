@@ -1,19 +1,54 @@
-<h2>Pacientes Atendidos</h2>
+<h2 class="titulo-historias">Pacientes Atendidos</h2>
 
-<div *ngIf="historias.length === 0">No atendiste a ningún paciente aún.</div>
-
-<div *ngFor="let h of historias" class="historia-card">
-  <p><strong>Fecha:</strong> {{ h.created_at | date:'shortDate' }}</p>
-  <p><strong>Paciente:</strong> {{ pacientesMap[h.paciente_id].nombre}} {{ pacientesMap[h.paciente_id].apellido}}</p>
-  <p>Altura: {{ h.altura }} cm</p>
-  <p>Peso: {{ h.peso }} kg</p>
-  <p>Temperatura: {{ h.temperatura }} °C</p>
-  <p>Presión: {{ h.presion }}</p>
-
-  <div *ngIf="h.datos_dinamicos?.length">
-    <ul>
-      <li *ngFor="let d of h.datos_dinamicos">{{ d.clave }}: {{ d.valor }}</li>
-    </ul>
+<div *ngIf="!pacienteSeleccionado">
+  <div *ngIf="pacientes.length === 0" class="mensaje-vacio">
+    No atendiste a ningún paciente aún.
   </div>
-  <hr />
+
+  <div class="pacientes-grid">
+    <div *ngFor="let p of pacientes" class="paciente-card" (click)="seleccionarPaciente(p)">
+      <img [src]="p.imagen1 || 'assets/default-user.png'" alt="{{ p.nombre }}" class="paciente-foto" />
+      <h3>{{ p.nombre }} {{ p.apellido }}</h3>
+      <button class="fav-btn" title="Ver detalles"></button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="pacienteSeleccionado" class="detalle-container">
+  <button class="volver-btn" (click)="volverALista()">Volver</button>
+  <h3>{{ pacienteSeleccionado.nombre }} {{ pacienteSeleccionado.apellido }}</h3>
+
+  <div *ngFor="let h of historiasPacienteSeleccionado" class="historia-card">
+    <div class="historia-header">
+      <p class="fecha">Fecha: {{ h.created_at | date: 'shortDate' }}</p>
+    </div>
+
+    <div class="historia-info">
+      <p><strong>Altura:</strong> {{ h.altura }} cm</p>
+      <p><strong>Peso:</strong> {{ h.peso }} kg</p>
+      <p><strong>Temperatura:</strong> {{ h.temperatura }} °C</p>
+      <p><strong>Presión:</strong> {{ h.presion }}</p>
+    </div>
+
+    <div *ngIf="h.datos_dinamicos?.length" class="datos-extra">
+      <h4>Datos adicionales:</h4>
+      <ul>
+        <li *ngFor="let d of h.datos_dinamicos">
+          {{ d.clave }}: <span>{{ d.valor }}</span>
+        </li>
+      </ul>
+    </div>
+
+    <button class="resena-btn" (click)="mostrarResena(h.resena)">
+      Ver Reseña
+    </button>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="resenaSeleccionada">
+  <div class="modal">
+    <h3>Reseña del turno</h3>
+    <p>{{ resenaSeleccionada || 'Sin reseña disponible.' }}</p>
+    <button (click)="cerrarResena()">Cerrar</button>
+  </div>
 </div>

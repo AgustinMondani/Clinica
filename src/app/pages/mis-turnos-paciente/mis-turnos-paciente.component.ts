@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { EstadoTurnoPipe } from '../../pipes/estado-turno.pipe';
 import { FormatoFechaPipe } from '../../pipes/formato-fecha.pipe';
 import { FiltroTurnosPipe } from '../../pipes/filtro-turnos.pipe';
+import { LoadingService } from '../../core/loading.service';
 
 @Component({
   selector: 'app-mis-turnos-paciente',
@@ -29,13 +30,17 @@ export class MisTurnosPacienteComponent implements OnInit {
   comentariosCancelacion: Record<string, string> = {};
   comentariosCalificacion: Record<string, string> = {};
   calificaciones: Record<string, number> = {};
+  mostrarModalResena: boolean = false;
+  turnoSeleccionado: any = null;
 
   constructor(
     private turnoService: TurnoService,
-    private supabase: SupabaseService
+    private supabase: SupabaseService,
+    private loading: LoadingService
   ) {}
 
   async ngOnInit() {
+    this.loading.show();
     const userId = await this.supabase.getUserId();
     const data = await this.turnoService.obtenerTurnosPorUsuario(userId!, 'paciente');
     this.turnos = data || [];
@@ -44,6 +49,7 @@ export class MisTurnosPacienteComponent implements OnInit {
     this.especialistasMap = await this.supabase.cargarEspecialistas();
 
     this.fechasUnicas = [...new Set(this.turnos.map(t => t.fecha))];
+    this.loading.hide();
   }
 
   mostrarMensaje(texto: string, tipo: 'error' | 'success' | 'info' = 'info', duracionSegundos = 5) {
@@ -56,14 +62,25 @@ export class MisTurnosPacienteComponent implements OnInit {
   }
 
   actualizarTurnosFiltrados() {
+    const filtroTexto = this.filtro.trim().toLowerCase();
+
     this.turnosFiltrados = this.turnos.filter(t => {
       const coincideFecha = this.filtroFecha ? t.fecha === this.filtroFecha : true;
-      const coincideEstado = this.filtroEstado ? t.estado === this.filtroEstado : true;
-      const filtroTexto = this.filtro.trim().toLowerCase();
-      const especialidad = t.especialidad?.toLowerCase() ?? '';
-      const nombreCompleto = `${this.especialistasMap[t.especialista_id]?.nombre ?? ''} ${this.especialistasMap[t.especialista_id]?.apellido ?? ''}`.toLowerCase();
-      const coincideFiltroUnico = filtroTexto ? especialidad.includes(filtroTexto) || nombreCompleto.includes(filtroTexto) : true;
-      return coincideFecha && coincideEstado && coincideFiltroUnico;
+      const coincideEstadoSelect = this.filtroEstado ? t.estado === this.filtroEstado : true;
+
+      const especialista = this.especialistasMap[t.especialista_id];
+      const nombreCompleto = `${especialista?.nombre ?? ''} ${especialista?.apellido ?? ''}`.toLowerCase();
+      const coincideFiltroGeneral = filtroTexto
+        ? (
+            t.especialidad?.toLowerCase().includes(filtroTexto) ||
+            t.estado?.toLowerCase().includes(filtroTexto) ||
+            t.fecha?.toLowerCase().includes(filtroTexto) ||
+            t.horario?.toLowerCase().includes(filtroTexto) ||
+            nombreCompleto.includes(filtroTexto)
+          )
+        : true;
+
+      return coincideFecha && coincideEstadoSelect && coincideFiltroGeneral;
     });
   }
 
@@ -75,61 +92,66 @@ export class MisTurnosPacienteComponent implements OnInit {
   }
 
   async cancelarTurno(turno: any) {
-  if (turno.estado !== 'pendiente') {
-    this.mostrarMensaje('No puede cancelar un turno que ya fue realizado o cancelado', 'error');
-    return;
+    if (['realizado', 'rechazado', 'cancelado'].includes(turno.estado)) {
+      this.mostrarMensaje('No puede cancelar un turno que ya fue realizado o cancelado', 'error');
+      return;
+    }
+
+    const comentario = this.comentariosCancelacion[turno.id];
+    if (!comentario || comentario.trim() === '') {
+      this.mostrarMensaje('Debe ingresar un comentario para cancelar el turno', 'error');
+      return;
+    }
+
+    await this.turnoService.actualizarTurno(turno.id, {
+      estado: 'cancelado',
+      comentario_cancelacion: comentario.trim()
+    });
+
+    this.mostrarMensaje('Turno cancelado correctamente', 'success');
+    this.comentariosCancelacion[turno.id] = '';
+    this.ngOnInit();
   }
-
-  const comentario = this.comentariosCancelacion[turno.id];
-  if (!comentario || comentario.trim() === '') {
-    this.mostrarMensaje('Debe ingresar un comentario para cancelar el turno', 'error');
-    return;
-  }
-
-  await this.turnoService.actualizarTurno(turno.id, {
-    estado: 'cancelado',
-    comentario_paciente: comentario.trim()
-  });
-
-  this.mostrarMensaje('Turno cancelado correctamente', 'success');
-  this.comentariosCancelacion[turno.id] = '';
-  this.ngOnInit();
-}
-
 
   async calificarTurno(turno: any) {
-  if (turno.estado !== 'realizado') {
-    this.mostrarMensaje('Solo puede calificar turnos realizados', 'error');
-    return;
+    if (turno.estado !== 'realizado') {
+      this.mostrarMensaje('Solo puede calificar turnos realizados', 'error');
+      return;
+    }
+
+    const comentario = this.comentariosCalificacion[turno.id];
+    const calificacion = this.calificaciones[turno.id];
+    if (!comentario || comentario.trim() === '' || !calificacion || calificacion < 1 || calificacion > 5) {
+      this.mostrarMensaje('Debe ingresar comentario y calificación válida (1 a 5)', 'error');
+      return;
+    }
+
+    await this.turnoService.actualizarTurno(turno.id, {
+      comentario_paciente: comentario.trim(),
+      calificacion
+    });
+
+    this.mostrarMensaje('Gracias por calificar el turno', 'success');
+    this.comentariosCalificacion[turno.id] = '';
+    this.calificaciones[turno.id] = 0;
+    this.ngOnInit();
   }
-
-  const comentario = this.comentariosCalificacion[turno.id];
-  const calificacion = this.calificaciones[turno.id];
-  if (!comentario || comentario.trim() === '' || !calificacion || calificacion < 1 || calificacion > 5) {
-    this.mostrarMensaje('Debe ingresar comentario y calificación válida (1 a 5)', 'error');
-    return;
-  }
-
-  await this.turnoService.actualizarTurno(turno.id, {
-    comentario_paciente: comentario.trim(),
-    calificacion
-  });
-
-  this.mostrarMensaje('Gracias por calificar el turno', 'success');
-  this.comentariosCalificacion[turno.id] = '';
-  this.calificaciones[turno.id] = 0;
-  this.ngOnInit();
-}
 
   completarEncuesta(turno: any) {
-  if (turno.estado !== 'realizado' || !turno.resena) {
-    this.mostrarMensaje('No puede completar la encuesta aún', 'error');
-    return;
+    if (turno.estado !== 'realizado' || !turno.resena) {
+      this.mostrarMensaje('No puede completar la encuesta aún', 'error');
+      return;
+    }
+    this.mostrarMensaje('Componente Encuesta pendiente. Pronto se cargará aquí.', 'info');
   }
-  this.mostrarMensaje('Componente Encuesta pendiente. Pronto se cargará aquí.', 'info');
-}
 
   verResena(turno: any) {
-  this.mostrarMensaje(`Reseña del especialista:\n${turno.resena}`, 'info', 10);
-}
+    this.turnoSeleccionado = turno;
+    this.mostrarModalResena = true;
+  }
+
+  cerrarModalResena() {
+    this.mostrarModalResena = false;
+    this.turnoSeleccionado = null;
+  }
 }

@@ -10,21 +10,32 @@
     {{ mensaje }}
   </div>
 
-  <div class="form-group">
-    <label for="especialidadSelect">Especialidad</label>
-    <select id="especialidadSelect" [(ngModel)]="especialidadSeleccionada" (change)="onEspecialidadChange()">
-      <option [ngValue]="null">Seleccione una especialidad</option>
-      <option *ngFor="let esp of especialidades" [value]="esp">{{ esp }}</option>
-    </select>
+  <div class="especialidades-container">
+    <h3>Seleccione una especialidad</h3>
+    <div class="especialidades-grid">
+      <button
+        *ngFor="let esp of especialidades"
+        (click)="seleccionarEspecialidad(esp.nombre)"
+        [class.seleccionado]="esp.nombre === especialidadSeleccionada"
+      >
+        <img [src]="esp.imagen || 'assets/img/default-especialidad.jpg'" [alt]="esp.nombre" />
+        <span>{{ esp.nombre }}</span>
+      </button>
+    </div>
   </div>
 
-  <div *ngIf="especialistasFiltrados().length > 0" class="especialistas-lista">
-    <h3>Especialistas disponibles</h3>
-    <ul>
-      <li *ngFor="let esp of especialistasFiltrados()" (click)="seleccionarEspecialista(esp)" [class.seleccionado]="esp === especialistaSeleccionado">
-        {{ esp.nombre }} {{ esp.apellido }}
-      </li>
-    </ul>
+  <div *ngIf="especialistasFiltrados().length > 0" class="especialistas-container">
+    <h3>Seleccione un especialista</h3>
+    <div class="especialistas-grid">
+      <button
+        *ngFor="let esp of especialistasFiltrados()"
+        (click)="seleccionarEspecialista(esp)"
+        [class.seleccionado]="esp === especialistaSeleccionado"
+      >
+        <img [src]="esp.imagen || 'assets/img/default-user.png'" [alt]="esp.nombre" />
+        <span>{{ esp.nombre }} {{ esp.apellido }}</span>
+      </button>
+    </div>
   </div>
 
   <div *appMostrarAdmin="true" class="form-group">

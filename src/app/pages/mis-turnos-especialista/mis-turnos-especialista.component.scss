@@ -1,7 +1,7 @@
 
 .container {
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 900px;
+  margin:90px auto;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #333;
 }
@@ -144,6 +144,7 @@ button:disabled {
   transform: translate(-50%, -50%);
   background: white;
   border-radius: 10px;
+  height: 50%;
   width: 90%;
   max-width: 480px;
   max-height: 90vh;
@@ -263,3 +264,4 @@ textarea:focus {
     width: 100%;
   }
 }
+

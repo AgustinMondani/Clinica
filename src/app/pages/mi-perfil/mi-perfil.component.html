@@ -1,8 +1,17 @@
 <div class="perfil-container">
   <div class="perfil-card">
+    
     <div class="perfil-imagenes" *ngIf="usuario">
-      <img *ngIf="usuario.imagen" [src]="usuario.imagen" alt="Imagen de perfil" />
-      <img *ngIf="usuario.imagen2" [src]="usuario.imagen2" alt="Segunda imagen" />
+      <ng-container *ngIf="usuario.rol === 'paciente'; else unaImagen">
+        <div class="imagenes-dobles">
+          <img *ngIf="usuario.imagen1" [src]="usuario.imagen1" alt="Imagen de perfil 1" />
+          <img *ngIf="usuario.imagen2" [src]="usuario.imagen2" alt="Imagen de perfil 2" />
+        </div>
+      </ng-container>
+
+      <ng-template #unaImagen>
+        <img *ngIf="usuario.imagen" [src]="usuario.imagen" alt="Imagen de perfil" />
+      </ng-template>
     </div>
 
     <div class="perfil-datos" *ngIf="usuario">
@@ -33,13 +42,12 @@
         <button (click)="irA('solicitar-turno')">SOLICITAR TURNO</button>
         <button (click)="irA('estadisticas')">ESTADISTICAS</button>
         <button (click)="irA('registro-admin')">REGISTRAR ADMIN</button>
-
       </ng-container>
+
     </div>
   </div>
-
-
 </div>
+
 <div class="historia-clinica-container" *ngIf="usuario.rol === 'paciente'">
   <h2>Mi Historia Clínica</h2>
 

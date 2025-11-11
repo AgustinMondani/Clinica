@@ -1,12 +1,10 @@
-
-
 .solicitar-turno-container {
   max-width: 700px;
   margin: 100px auto;
   background-color: rgba(255, 255, 255, 0.95);
   padding: 30px 40px;
   border-radius: 15px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #333;
   user-select: none;
@@ -21,8 +19,126 @@ h2 {
   font-size: 2.4rem;
 }
 
-.form-group {
+.especialidades-container {
+  margin-bottom: 30px;
 
+  h3 {
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #2c3e50;
+  }
+
+  .especialidades-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+
+    button {
+      width: 150px;
+      height: 170px;
+      border: 1.8px solid #bdc3c7;
+      border-radius: 12px;
+      background-color: #f8f9fa;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: #d6eaf8;
+        transform: translateY(-3px);
+      }
+
+      &.seleccionado {
+        border-color: #2980b9;
+        box-shadow: 0 0 10px rgba(41, 128, 185, 0.4);
+        background-color: #2980b9;
+        color: white;
+
+        span {
+          color: white;
+        }
+      }
+
+      img {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+
+      span {
+        font-weight: 600;
+        color: #2c3e50;
+        text-align: center;
+      }
+    }
+  }
+}
+
+.especialistas-container {
+  margin-bottom: 30px;
+
+  h3 {
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #2c3e50;
+  }
+
+  .especialistas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+
+    button {
+      border: 1.8px solid #bdc3c7;
+      border-radius: 10px;
+      background-color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 15px;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+
+      &:hover {
+        background-color: #ecf0f1;
+      }
+
+      &.seleccionado {
+        background-color: #2980b9;
+        border-color: #1c4f7a;
+        color: white;
+
+        span {
+          color: white;
+        }
+      }
+
+      img {
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #bdc3c7;
+      }
+
+      span {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+.form-group {
   margin-top: 50px;
   margin-bottom: 25px;
 
@@ -34,7 +150,6 @@ h2 {
     color: #34495e;
   }
 
-  input[type="text"],
   select {
     width: 100%;
     padding: 10px 14px;
@@ -48,62 +163,6 @@ h2 {
       border-color: #2980b9;
       outline: none;
       box-shadow: 0 0 6px rgba(41, 128, 185, 0.5);
-    }
-  }
-
-  button {
-    margin-top: 10px;
-    background-color: #2980b9;
-    color: white;
-    border: none;
-    padding: 11px 25px;
-    font-size: 1.1rem;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.3s ease;
-
-    &:hover:not(:disabled) {
-      background-color: #1f5f8b;
-    }
-
-    &:disabled {
-      cursor: not-allowed;
-      opacity: 0.6;
-    }
-  }
-}
-
-.especialistas-lista {
-  margin-bottom: 25px;
-
-  h3 {
-    font-weight: 700;
-    margin-bottom: 12px;
-    color: #2c3e50;
-  }
-
-  ul {
-    list-style: none;
-    padding: 0;
-
-    li {
-      padding: 12px 15px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      border: 1.5px solid transparent;
-
-      &:hover {
-        background-color: #ecf0f1;
-      }
-
-      &.seleccionado {
-        background-color: #2980b9;
-        color: white;
-        font-weight: 700;
-        border-color: #1c4f7a;
-      }
     }
   }
 }
@@ -219,20 +278,22 @@ h2 {
   border-radius: 4px;
   font-weight: 600;
   text-align: center;
+
   &.error {
     background-color: #f8d7da;
     color: #842029;
     border: 1px solid #f5c2c7;
   }
+
   &.success {
     background-color: #d1e7dd;
     color: #0f5132;
     border: 1px solid #badbcc;
   }
+
   &.info {
     background-color: #cff4fc;
     color: #055160;
     border: 1px solid #b6effb;
   }
 }
-

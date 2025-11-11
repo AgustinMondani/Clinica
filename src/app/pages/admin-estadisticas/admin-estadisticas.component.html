@@ -2,29 +2,41 @@
 
 <section id="graficoEspecialidad">
   <h3>Turnos por Especialidad</h3>
-  <canvas baseChart [data]="{ labels: pieChartLabels, datasets: [{ data: pieChartData }] }" [type]="pieChartType"
-    [options]="{ responsive: true }">
-  </canvas>
+  <canvas baseChart [data]="{ labels: pieChartLabels, datasets: [{ data: pieChartData }] }" [type]="pieChartType"></canvas>
 </section>
 
 <hr>
 
 <section id="graficoTurnosPorDia">
   <h3>Turnos por Día</h3>
-  <canvas baseChart [data]="{ labels: lineChartLabels, datasets: lineChartData }" [type]="lineChartType"
-    [options]="{ responsive: true }">
-  </canvas>
+  <canvas baseChart [data]="{ labels: lineChartLabels, datasets: lineChartData }" [type]="lineChartType"></canvas>
 </section>
 
 <hr>
-<section id="graficoTurnosMedicos">
-    <h3>Turnos por Médico (próximos 15 días)</h3>
-    <canvas baseChart [data]="{ labels: barChartLabelsMedicosTurnos15Dias, datasets: barChartDataMedicosTurnos15Dias }"
-      [type]="'bar'" [options]="{ responsive: true }">
-    </canvas>
-  </section>
+
+<section id="graficoFechas">
+  <h3>Turnos por Médico</h3>
+  <div class="filtro-fechas">
+    <label>Desde: <input type="date" [(ngModel)]="fechaInicio" /></label>
+    <label>Hasta: <input type="date" [(ngModel)]="fechaFin" /></label>
+    <button (click)="filtrarPorFechas()">Filtrar</button>
+  </div>
+  <canvas baseChart [data]="{ labels: barChartLabelsMedicosPorFechas, datasets: barChartDataMedicosPorFechas }" [type]="'bar'"></canvas>
+</section>
+
 <hr>
 
+<section id="graficoRealizados">
+  <h3>Turnos realizados por Medico</h3>
+  <div class="filtro-fechas">
+    <label>Desde: <input type="date" [(ngModel)]="fechaInicioRealizado" /></label>
+    <label>Hasta: <input type="date" [(ngModel)]="fechaFinRealizado" /></label>
+    <button (click)="filtrarPorRealizados()">Filtrar</button>
+  </div>
+  <canvas baseChart [data]="{ labels: barChartLabelsTurnosEstado, datasets: barChartDataTurnosEstado }" [type]="'bar'"></canvas>
+</section>
+
+<hr>
 
 <section>
   <h3>Logs de Ingreso</h3>

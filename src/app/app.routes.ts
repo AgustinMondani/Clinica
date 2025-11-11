@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { RouterModule, Routes, provideRouter, withViewTransitions } from '@angular/router';
 import { BienvenidaComponent } from './pages/bienvenida/bienvenida.component';
 import { LoginComponent } from './auth/login/login.component';
 import { RegisterPacienteComponent } from './auth/register-paciente/register-paciente.component';
@@ -15,23 +15,24 @@ import { MiPerfilComponent } from './pages/mi-perfil/mi-perfil.component';
 import { PacientesEspecialistaComponent } from './pages/pacientes-especialista/pacientes-especialista.component';
 import { AdminEstadisticasComponent } from './pages/admin-estadisticas/admin-estadisticas.component';
 import { RegistrosComponent } from './pages/registros/registros.component';
+import { RolGuard } from './guards/rolGuard';
 
 export const routes: Routes = [
   { path: '', component: BienvenidaComponent },
   { path: 'login', component: LoginComponent },
   { path: 'registros', component: RegistrosComponent},
-  { path: 'registro-paciente', component: RegisterPacienteComponent },
-  { path: 'registro-especialista', component: RegisterEspecialistaComponent },
-  { path: 'registro-admin', component: RegisterAdminComponent },
-  { path: 'admin', component: AdminComponent},
-  { path: 'solicitar-turno', component: SolicitarTurnoComponent },
-  { path: 'mis-turnos-paciente', component: MisTurnosPacienteComponent },
-  { path: 'mis-turnos-especialista', component: MisTurnosEspecialistaComponent },
-  { path: 'mis-horarios', component: MisHorariosComponent },
-  { path: 'turnos-admin', component: TurnosAdminComponent},
-  { path: 'mi-perfil', component: MiPerfilComponent},
+  { path: 'registro-paciente', component: RegisterPacienteComponent},
+  { path: 'registro-especialista', component: RegisterEspecialistaComponent},
+  { path: 'registro-admin', component: RegisterAdminComponent, canActivate: [RolGuard], data: { roles: ['admin'] } },
+  { path: 'admin', component: AdminComponent, canActivate: [RolGuard], data: { rol: 'admin' }},
+  { path: 'solicitar-turno', component: SolicitarTurnoComponent, canActivate: [RolGuard], data: { roles: ['paciente', 'admin'] } },
+  { path: 'mis-turnos-paciente', component: MisTurnosPacienteComponent, canActivate: [RolGuard], data: { roles: ['paciente'] } },
+  { path: 'mis-turnos-especialista', component: MisTurnosEspecialistaComponent, canActivate: [RolGuard], data: { roles: ['especialista'] } },
+  { path: 'mis-horarios', component: MisHorariosComponent, canActivate: [RolGuard], data: { roles: ['especialista'] } },
+  { path: 'turnos-admin', component: TurnosAdminComponent, canActivate: [RolGuard], data: { roles: ['admin'] }},
+  { path: 'mi-perfil', component: MiPerfilComponent, canActivate: [RolGuard], data: { roles: ['especialista', 'paciente', 'admin'] }},
   { path: 'pacientes-especialista', component: PacientesEspecialistaComponent},
-  { path: 'estadisticas', component:AdminEstadisticasComponent}
+  { path: 'estadisticas', component:AdminEstadisticasComponent, canActivate: [RolGuard], data: { roles: ['admin'] }}
 ];
 
 @NgModule({

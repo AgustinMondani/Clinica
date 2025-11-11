@@ -11,58 +11,71 @@
 
   <div class="row mb-3">
     <div class="col-md-6 mb-2">
-      <input
-        type="text"
-        class="form-control"
-        placeholder="Buscar por especialista o especialidad"
-        [(ngModel)]="filtro"
-        (input)="actualizarTurnosFiltrados()"
-      />
+      <input type="text" class="form-control" placeholder="Buscar por especialista o especialidad" [(ngModel)]="filtro"
+        (input)="actualizarTurnosFiltrados()" />
     </div>
-    <!-- <div class="col-md-4 mb-2">
-      <input
-        type="date"
-        class="form-control"
-        [(ngModel)]="filtroFecha"
-        (ngModelChange)="actualizarTurnosFiltrados()"
-      />
+    <div class="col-md-4 mb-2">
+      <input type="date" class="form-control" [(ngModel)]="filtroFecha" (ngModelChange)="actualizarTurnosFiltrados()" />
     </div>
     <div class="col-md-2 mb-2">
       <button class="btn btn-secondary w-100" (click)="limpiarFiltros()">Limpiar</button>
     </div>
-  </div> -->
+  </div>
 
   <div *ngFor="let turno of turnosFiltrados | filtroTurnos:filtro:especialistasMap" class="card mb-3">
     <div class="card-body">
       <h5 class="card-title">{{ turno.especialidad | titlecase }}</h5>
       <p class="card-text">
-        Especialista: {{ especialistasMap[turno.especialista_id]?.nombre }} {{ especialistasMap[turno.especialista_id]?.apellido }}
+        Especialista: {{ especialistasMap[turno.especialista_id]?.nombre }} {{
+        especialistasMap[turno.especialista_id]?.apellido }}
       </p>
       <p class="card-text">Fecha: {{ turno.fecha | formatoFecha }} - Horario: {{ turno.horario }}</p>
       <p><strong>Estado:</strong> {{ turno.estado | estadoTurno }}</p>
 
       <div class="d-flex gap-2 flex-wrap mt-3">
 
-        <div *ngIf="turno.estado === 'pendiente'" class="d-flex gap-1">
-          <input type="text" class="form-control form-control-sm" placeholder="Motivo cancelación" [(ngModel)]="comentariosCancelacion[turno.id]" />
-          <button class="btn btn-danger btn-sm" (click)="cancelarTurno(turno)">Cancelar Turno</button>
+        <div *ngIf="turno.estado === 'pendiente' || turno.estado === 'aceptado'" class="d-flex gap-1">
+          <input type="text" class="form-control form-control-sm" placeholder="Motivo cancelación"
+            [(ngModel)]="comentariosCancelacion[turno.id]" />
+          <button class="btn btn-danger btn-sm" (click)="cancelarTurno(turno)">Cancelar</button>
         </div>
 
         <div *ngIf="turno.estado === 'cancelado'" class="alert alert-warning p-1 m-0">
-          Motivo de cancelación: {{ turno.comentario_paciente || 'No especificado' }}
+          Motivo de cancelación: {{ turno.comentario_cancelacion || turno.comentario_paciente ||turno.comentario_especialista || 'No especificado' }}
         </div>
 
         <button *ngIf="turno.resena" class="btn btn-info btn-sm" (click)="verResena(turno)">Ver Reseña</button>
 
-        <button *ngIf="turno.estado === 'realizado' && turno.resena" class="btn btn-warning btn-sm" (click)="completarEncuesta(turno)">Completar Encuesta</button>
-
-        <div *ngIf="turno.estado === 'realizado'" class="d-flex gap-1">
-          <input type="text" class="form-control form-control-sm" placeholder="Comentario" [(ngModel)]="comentariosCalificacion[turno.id]" />
-          <input type="number" class="form-control form-control-sm" min="1" max="5" placeholder="Calificación 1-5" [(ngModel)]="calificaciones[turno.id]" />
+        <div *ngIf="turno.estado === 'realizado' && !turno.comentario_paciente" class="calificacion-container">
+          <input type="text" class="form-control form-control-sm" placeholder="Comentario"
+            [(ngModel)]="comentariosCalificacion[turno.id]" />
+          <input type="number" class="form-control form-control-sm" min="1" max="5" placeholder="Calificación 1-5"
+            [(ngModel)]="calificaciones[turno.id]" />
           <button class="btn btn-success btn-sm" (click)="calificarTurno(turno)">Calificar Atención</button>
         </div>
 
+
+
       </div>
     </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="mostrarModalResena" (click)="cerrarModalResena()"></div>
+<div class="modal" *ngIf="mostrarModalResena">
+  <div class="modal-header">
+    <h3>Reseña del Turno</h3>
+    <button class="btn-close" (click)="cerrarModalResena()">&times;</button>
+  </div>
+  <div class="modal-body">
+    <p><strong>Especialista: </strong> {{ especialistasMap[turnoSeleccionado?.especialista_id]?.nombre }} {{
+      especialistasMap[turnoSeleccionado?.especialista_id]?.apellido }}</p>
+    <p><strong>Especialidad: </strong> {{ turnoSeleccionado?.especialidad }}</p>
+    <p><strong>Comentario del Paciente: </strong>{{ turnoSeleccionado?.comentario_paciente || 'Sin comentario' }}</p>
+    <p><strong>Calificación: </strong> {{ turnoSeleccionado?.calificacion || 'Sin calificar'}}</p>
+    <p><strong>Reseña del Especialista: </strong>{{ turnoSeleccionado?.resena }}</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" (click)="cerrarModalResena()">Cerrar</button>
   </div>
 </div>

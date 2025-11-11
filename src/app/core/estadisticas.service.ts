@@ -29,45 +29,121 @@ export class EstadisticasService {
     return Object.entries(agrupado).map(([fecha, count]) => ({ fecha, count }));
   }
 
- async getTurnosPorMedicoProximos15Dias() {
-  const hoy = new Date();
-  const en15 = new Date();
-  en15.setDate(hoy.getDate() + 15);
+  async getTurnosPorMedicoProximos15Dias() {
+    const hoy = new Date();
+    const en15 = new Date();
+    en15.setDate(hoy.getDate() + 15);
 
-  const desde = hoy.toISOString().split('T')[0];
-  const hasta = en15.toISOString().split('T')[0];
+    const desde = hoy.toISOString().split('T')[0];
+    const hasta = en15.toISOString().split('T')[0];
 
-  const { data: turnos, error } = await this.supabase.client
-    .from('turnos')
-    .select('especialista_id')
-    .gte('fecha', desde)
-    .lte('fecha', hasta);
+    const { data: turnos, error } = await this.supabase.client
+      .from('turnos')
+      .select('especialista_id')
+      .gte('fecha', desde)
+      .lte('fecha', hasta);
 
-  if (error || !turnos) return [];
+    if (error || !turnos) return [];
 
-  const conteo: { [id: string]: number } = {};
-  turnos.forEach(t => {
-    if (t.especialista_id) {
-      conteo[t.especialista_id] = (conteo[t.especialista_id] || 0) + 1;
-    }
-  });
+    const conteo: { [id: string]: number } = {};
+    turnos.forEach(t => {
+      if (t.especialista_id) {
+        conteo[t.especialista_id] = (conteo[t.especialista_id] || 0) + 1;
+      }
+    });
 
-  const ids = Object.keys(conteo);
+    const ids = Object.keys(conteo);
+    if (ids.length === 0) return [];
 
-  if (ids.length === 0) return [];
+    const { data: especialistas, error: errorEsp } = await this.supabase.client
+      .from('especialistas')
+      .select('id, nombre, apellido')
+      .in('id', ids);
 
-  const { data: especialistas, error: errorEsp } = await this.supabase.client
-    .from('especialistas')
-    .select('id, nombre, apellido')
-    .in('id', ids);
+    if (errorEsp || !especialistas) return [];
 
-  if (errorEsp || !especialistas) return [];
+    return especialistas.map(e => ({
+      nombre_completo: `${e.nombre} ${e.apellido}`,
+      count: conteo[e.id] || 0
+    }));
+  }
 
-  return especialistas.map(e => ({
-    nombre_completo: `${e.nombre} ${e.apellido}`,
-    count: conteo[e.id] || 0
-  }));
-}
+  async getTurnosPorMedicoEntreFechas(desde: string, hasta: string) {
+    const { data: turnos, error } = await this.supabase.client
+      .from('turnos')
+      .select('especialista_id, fecha')
+      .gte('fecha', desde)
+      .lte('fecha', hasta);
+
+    if (error || !turnos) return [];
+
+    const conteo: { [id: string]: number } = {};
+    turnos.forEach(t => {
+      if (t.especialista_id) {
+        conteo[t.especialista_id] = (conteo[t.especialista_id] || 0) + 1;
+      }
+    });
+
+    const ids = Object.keys(conteo);
+    if (ids.length === 0) return [];
+
+    const { data: especialistas, error: errorEsp } = await this.supabase.client
+      .from('especialistas')
+      .select('id, nombre, apellido')
+      .in('id', ids);
+
+    if (errorEsp || !especialistas) return [];
+
+    return especialistas.map(e => ({
+      nombre_completo: `${e.nombre} ${e.apellido}`,
+      count: conteo[e.id] || 0
+    }));
+  }
+
+  async getTurnosPorMedicoEntreFechasFinalizados(desde: string, hasta: string) {
+    const { data: turnos, error } = await this.supabase.client
+      .from('turnos')
+      .select('especialista_id, fecha')
+      .gte('fecha', desde)
+      .lte('fecha', hasta)
+      .eq('estado', 'realizado');
+
+    if (error || !turnos) return [];
+
+    const conteo: { [id: string]: number } = {};
+    turnos.forEach(t => {
+      if (t.especialista_id) {
+        conteo[t.especialista_id] = (conteo[t.especialista_id] || 0) + 1;
+      }
+    });
+
+    const ids = Object.keys(conteo);
+    if (ids.length === 0) return [];
+
+    const { data: especialistas, error: errorEsp } = await this.supabase.client
+      .from('especialistas')
+      .select('id, nombre, apellido')
+      .in('id', ids);
+
+    if (errorEsp || !especialistas) return [];
+
+    return especialistas.map(e => ({
+      nombre_completo: `${e.nombre} ${e.apellido}`,
+      count: conteo[e.id] || 0
+    }));
+  }
+
+  async getTurnosPorEstado() {
+    const { data, error } = await this.supabase.client.from('turnos').select('estado');
+    if (error || !data) throw error;
+
+    const agrupado = data.reduce((acc, t) => {
+      acc[t.estado] = (acc[t.estado] || 0) + 1;
+      return acc;
+    }, {} as { [estado: string]: number });
+
+    return Object.entries(agrupado).map(([estado, count]) => ({ estado, count }));
+  }
 
   async getLogIngresos() {
     const { data, error } = await this.supabase.client

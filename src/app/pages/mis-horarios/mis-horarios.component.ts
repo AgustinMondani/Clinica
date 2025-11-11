@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { SupabaseService } from '../../core/supabase.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { LoadingService } from '../../core/loading.service';
 
 @Component({
   selector: 'app-mis-horarios',
@@ -28,9 +29,10 @@ export class MisHorariosComponent implements OnInit {
   mensajeError = '';
   horasDisponibles: string[] = [];
 
-  constructor(private supabase: SupabaseService) {}
+  constructor(private supabase: SupabaseService, private loading: LoadingService) {}
 
   async ngOnInit() {
+    this.loading.show();
     const user = await this.supabase.getUsuarioActual();
     const userId = user?.id;
     if (!userId) return;
@@ -45,6 +47,7 @@ export class MisHorariosComponent implements OnInit {
     this.especialidades = data?.map((e: any) => e.especialidad.nombre) || [];
     this.generarHorasDisponibles('lunes');
     await this.cargarHorarios();
+    this.loading.hide();
   }
 
   async cargarHorarios() {
@@ -71,6 +74,7 @@ export class MisHorariosComponent implements OnInit {
         this.generarHorasDisponibles(this.nueva.dias[0]);
       }
     }
+
   }
 
   generarHorasDisponibles(dia: string) {
@@ -80,7 +84,7 @@ export class MisHorariosComponent implements OnInit {
 
   if (!this.nueva.duracion) return; 
 
-  const intervalo = this.nueva.duracion / 60; // convertir a horas
+  const intervalo = this.nueva.duracion / 60;
   let horaActual = inicio;
 
   while (horaActual < fin) {

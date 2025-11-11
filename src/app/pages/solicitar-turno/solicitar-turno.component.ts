@@ -3,6 +3,7 @@ import { SupabaseService } from '../../core/supabase.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MostrarAdminDirective } from '../../directives/mostrar-admin.directive';
+import { LoadingService } from '../../core/loading.service';
 
 @Component({
   selector: 'app-solicitar-turno',
@@ -12,7 +13,7 @@ import { MostrarAdminDirective } from '../../directives/mostrar-admin.directive'
   imports: [CommonModule, FormsModule, MostrarAdminDirective]
 })
 export class SolicitarTurnoComponent implements OnInit {
-  especialidades: string[] = [];
+  especialidades: any[] = [];
   especialistas: any[] = [];
   especialistaSeleccionado: any = null;
   especialidadSeleccionada: string | null = null;
@@ -31,17 +32,17 @@ export class SolicitarTurnoComponent implements OnInit {
   mensaje: string | null = null;
   tipoMensaje: 'error' | 'success' | 'info' | null = null;
 
-  constructor(private supabase: SupabaseService) { }
+  constructor(private supabase: SupabaseService, private loading: LoadingService) {}
 
   async ngOnInit() {
+    this.loading.show();
     const user = await this.supabase.getUsuarioActual();
     this.rolUsuario = user?.rol || '';
-
     const { data: espData, error: espError } = await this.supabase.client
       .from('especialidades')
-      .select('nombre');
+      .select('nombre, imagen');
     if (espError) console.error('Error fetching especialidades:', espError);
-    this.especialidades = (espData || []).map((e: any) => e.nombre);
+    this.especialidades = espData || [];
 
     const { data: especData, error: especError } = await this.supabase.client
       .from('especialistas')
@@ -59,6 +60,7 @@ export class SolicitarTurnoComponent implements OnInit {
       if (error) console.error('[ngOnInit] Error fetching pacientes:', error);
       this.pacientes = data || [];
     }
+    this.loading.hide();
   }
 
   mostrarMensaje(texto: string, tipo: 'error' | 'success' | 'info' = 'info', duracionSegundos = 5) {
@@ -75,6 +77,13 @@ export class SolicitarTurnoComponent implements OnInit {
     return this.especialistas.filter((esp: any) =>
       esp.especialidades.includes(this.especialidadSeleccionada!)
     );
+  }
+
+  seleccionarEspecialidad(nombre: string) {
+    this.especialidadSeleccionada = nombre;
+    this.especialistaSeleccionado = null;
+    this.fechasDisponibles = [];
+    this.horariosDisponibles = [];
   }
 
   async seleccionarEspecialista(esp: any) {
@@ -148,8 +157,7 @@ export class SolicitarTurnoComponent implements OnInit {
           iso: `${year}-${month}-${day}`,
           texto: fecha.toLocaleDateString('es-AR', {
             weekday: 'long',
-            year: 'numeric',
-            month: 'short',
+            month: 'long',
             day: 'numeric'
           })
         });

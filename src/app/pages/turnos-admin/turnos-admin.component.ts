@@ -95,7 +95,7 @@ export class TurnosAdminComponent implements OnInit {
   }
 
   puedeCancelar(estado: string): boolean {
-    return !['aceptado', 'realizado', 'rechazado', 'cancelado'].includes(estado?.toLowerCase());
+    return !['realizado', 'rechazado', 'cancelado'].includes(estado?.toLowerCase());
   }
 
   async cancelarTurno(id: string, motivo: string) {
